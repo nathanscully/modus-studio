@@ -1,5 +1,7 @@
-// Top toolbar: preset loader, theme name, light/dark mode, sample language,
-// share link, and reset.
+// Top toolbar: preset loader, theme name, sample language, share link, and
+// reset. The background mode (light/dark) is not a user control — it's a
+// property of the chosen preset, carried through on load and emitted to the
+// exported theme file.
 
 import { toast } from "sonner";
 
@@ -17,10 +19,9 @@ import {
 import { useThemeStore, type LanguageId } from "~/state/theme-store.tsx";
 import { LANGUAGES } from "~/theme/highlight/languages.ts";
 import { PRESET_GROUPS } from "~/theme/presets.ts";
-import type { ThemeMode } from "~/theme/types.ts";
 
 export function Toolbar() {
-  const { doc, baseId, language, setMeta, setMode, loadPreset, setLanguage, reset, shareUrl } =
+  const { doc, baseId, language, setMeta, loadPreset, setLanguage, reset, shareUrl } =
     useThemeStore();
 
   async function copyShareLink() {
@@ -61,22 +62,12 @@ export function Toolbar() {
         className="h-8 w-44 font-mono text-xs"
       />
 
-      <div className="flex overflow-hidden rounded-md border text-xs">
-        {(["light", "dark"] as const).map((m: ThemeMode) => (
-          <button
-            key={m}
-            type="button"
-            onClick={() => setMode(m)}
-            className={
-              doc.meta.mode === m
-                ? "bg-primary text-primary-foreground px-3 py-1"
-                : "bg-background text-foreground hover:bg-muted px-3 py-1"
-            }
-          >
-            {m}
-          </button>
-        ))}
-      </div>
+      <span
+        className="text-muted-foreground rounded-md border px-2 py-1 text-xs"
+        title="Background mode is set by the chosen preset and written to the exported theme"
+      >
+        {doc.meta.mode}
+      </span>
 
       <Select value={language} onValueChange={(v) => setLanguage(v as LanguageId)}>
         <SelectTrigger size="sm" className="w-36 text-xs">

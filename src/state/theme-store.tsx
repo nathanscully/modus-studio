@@ -18,7 +18,7 @@ import {
 import type { ColorKey, RoleKey } from "../theme/palette-keys.ts";
 import { cloneDoc, DEFAULT_PRESET_ID, getPreset } from "../theme/presets.ts";
 import { decodeFromParam, encodeToParam, loadLocal, saveLocal } from "../theme/serialize.ts";
-import type { MappingValue, ThemeDoc, ThemeMode } from "../theme/types.ts";
+import type { MappingValue, ThemeDoc } from "../theme/types.ts";
 
 export type LanguageId = "elisp" | "typescript";
 
@@ -32,7 +32,6 @@ type Action =
   | { type: "setColor"; key: ColorKey; hex: string }
   | { type: "setMapping"; role: RoleKey; value: MappingValue }
   | { type: "setMeta"; patch: Partial<ThemeDoc["meta"]> }
-  | { type: "setMode"; mode: ThemeMode }
   | { type: "loadPreset"; presetId: string }
   | { type: "setLanguage"; language: LanguageId }
   | { type: "reset" };
@@ -52,11 +51,6 @@ function reducer(state: State, action: Action): State {
     case "setMeta": {
       const doc = cloneDoc(state.doc);
       doc.meta = { ...doc.meta, ...action.patch };
-      return { ...state, doc };
-    }
-    case "setMode": {
-      const doc = cloneDoc(state.doc);
-      doc.meta = { ...doc.meta, mode: action.mode };
       return { ...state, doc };
     }
     case "loadPreset": {
@@ -98,7 +92,6 @@ interface StoreApi {
   setColor: (key: ColorKey, hex: string) => void;
   setMapping: (role: RoleKey, value: MappingValue) => void;
   setMeta: (patch: Partial<ThemeDoc["meta"]>) => void;
-  setMode: (mode: ThemeMode) => void;
   loadPreset: (presetId: string) => void;
   setLanguage: (language: LanguageId) => void;
   reset: () => void;
@@ -137,7 +130,6 @@ export function ThemeStoreProvider({ children }: { children: ReactNode }) {
       setMapping: (role: RoleKey, value: MappingValue) =>
         dispatch({ type: "setMapping", role, value }),
       setMeta: (patch: Partial<ThemeDoc["meta"]>) => dispatch({ type: "setMeta", patch }),
-      setMode: (mode: ThemeMode) => dispatch({ type: "setMode", mode }),
       loadPreset: (presetId: string) => dispatch({ type: "loadPreset", presetId }),
       setLanguage: (language: LanguageId) => dispatch({ type: "setLanguage", language }),
       reset: () => dispatch({ type: "reset" }),
