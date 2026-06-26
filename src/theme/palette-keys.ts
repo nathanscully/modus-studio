@@ -19,7 +19,7 @@ export interface KeyGroup<K extends string> {
 // Layer 1 — named colors
 // ---------------------------------------------------------------------------
 
-const HUES = ["red", "green", "yellow", "blue", "magenta", "cyan"] as const;
+export const HUES = ["red", "green", "yellow", "blue", "magenta", "cyan"] as const;
 const HUE_VARIANTS = ["", "-warmer", "-cooler", "-faint", "-intense"] as const;
 
 // red, red-warmer, ... cyan-intense
