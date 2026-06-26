@@ -10,10 +10,13 @@ import {
   ColorPickerArea,
   ColorPickerContent,
   ColorPickerEyeDropper,
+  ColorPickerFormatSelect,
   ColorPickerHueSlider,
   ColorPickerInput,
   ColorPickerSwatch,
   ColorPickerTrigger,
+  parseColorString,
+  rgbToHex,
 } from "~/components/ui/color-picker.tsx";
 import { cn } from "~/lib/utils.ts";
 import type { ColorKey } from "~/theme/palette-keys.ts";
@@ -50,8 +53,16 @@ export const ColorField = memo(function ColorField({
   const hex = toPickerHex(value);
   const valid = value == null || isHex(value);
 
+  // The picker emits the value in whatever format is selected (hex / rgb(...) /
+  // hsl(...) / hsb(...)). Normalize any of them to a hex string for the store,
+  // which only deals in hex.
   const handleValueChange = (next: string) => {
-    if (isHex(next)) onChange(colorKey, next);
+    if (isHex(next)) {
+      onChange(colorKey, next);
+      return;
+    }
+    const parsed = parseColorString(next);
+    if (parsed) onChange(colorKey, rgbToHex(parsed));
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -123,12 +134,16 @@ export const ColorField = memo(function ColorField({
           </ColorPickerTrigger>
         </div>
 
-        <ColorPickerContent className="w-56">
+        <ColorPickerContent className="w-64">
           <ColorPickerArea />
           <ColorPickerHueSlider />
+          {/* Format select (HEX/RGB/HSL/HSB) + the matching input(s). The eye
+              dropper sits alongside. ColorPickerInput renders one field for hex
+              and grouped fields for rgb/hsl/hsb based on the selected format. */}
           <div className="flex items-center gap-2">
             <ColorPickerEyeDropper />
-            <ColorPickerInput withoutAlpha />
+            <ColorPickerFormatSelect className="w-20 shrink-0" />
+            <ColorPickerInput withoutAlpha className="min-w-0 flex-1" />
           </div>
         </ColorPickerContent>
       </ColorPicker>

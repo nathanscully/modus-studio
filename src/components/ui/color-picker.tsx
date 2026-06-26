@@ -1554,4 +1554,7 @@ export {
   ColorPickerSwatch,
   ColorPickerTrigger,
   useStore as useColorPicker,
+  // Exposed so consumers can normalize any emitted format (rgb/hsl/hsb) to hex.
+  parseColorString,
+  rgbToHex,
 };
