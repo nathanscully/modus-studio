@@ -1,8 +1,20 @@
-// A single named-color editor row: a hex field with a clickable swatch on its
-// left that opens the native OS color picker.
+// A single named-color editor row. Shows a swatch + the hex value; clicking
+// either opens a rich color picker (diceui / radix) pre-populated with the
+// current color. Clicking the hex text opens the picker with its hex input
+// focused, so a paste immediately overwrites the value.
 
-import { memo, useId, useRef, useState } from "react";
+import { memo, useId, useRef } from "react";
 
+import {
+  ColorPicker,
+  ColorPickerArea,
+  ColorPickerContent,
+  ColorPickerEyeDropper,
+  ColorPickerHueSlider,
+  ColorPickerInput,
+  ColorPickerSwatch,
+  ColorPickerTrigger,
+} from "~/components/ui/color-picker.tsx";
 import { cn } from "~/lib/utils.ts";
 import type { ColorKey } from "~/theme/palette-keys.ts";
 import { isHex } from "~/theme/resolve.ts";
@@ -15,6 +27,12 @@ interface ColorFieldProps {
   onChange: (key: ColorKey, hex: string) => void;
 }
 
+/** Normalize a stored value to a 7-char hex the picker can parse, or a default. */
+function toPickerHex(value: string | undefined): string {
+  if (value && isHex(value)) return value.slice(0, 7); // drop any alpha
+  return "#000000";
+}
+
 // PERF: memoized so a doc change re-renders only the row whose value/highlight
 // changed, not all ~190 palette rows. onChange takes the key so PaletteEditor can
 // pass the stable `setColor` action directly (no per-row closure).
@@ -25,27 +43,33 @@ export const ColorField = memo(function ColorField({
   onChange,
 }: ColorFieldProps) {
   const id = useId();
-  const colorInputRef = useRef<HTMLInputElement | null>(null);
-  const [text, setText] = useState(value ?? "");
+  // When true, focus the picker's hex input as soon as the popup opens (set when
+  // the user opens via the hex text, so a paste overwrites it immediately).
+  const focusInputOnOpen = useRef(false);
 
-  // A local draft lets the user type an intermediate, not-yet-valid hex like
-  // "#12" without propagating it. When the external value changes (preset load or
-  // a linked palette edit), resync the draft during render — tracked via a ref
-  // (not state) so this is a plain "did the prop change since last render" check,
-  // with no extra render pass and no effect.
-  const lastValueRef = useRef(value);
-  if (value !== lastValueRef.current) {
-    lastValueRef.current = value;
-    setText(value ?? "");
-  }
+  const hex = toPickerHex(value);
+  const valid = value == null || isHex(value);
 
-  const valid = isHex(text);
-  const pickerValue = isHex(value ?? "") && (value ?? "").length === 7 ? value! : "#000000";
-
-  function commit(next: string) {
-    setText(next);
+  const handleValueChange = (next: string) => {
     if (isHex(next)) onChange(colorKey, next);
-  }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    if (open && focusInputOnOpen.current) {
+      focusInputOnOpen.current = false;
+      // Focus + select the picker's hex input once the popover content mounts.
+      // The content renders in a portal, so query it by data-slot from document.
+      // The diceui HexInput is labelled "Hex color value".
+      requestAnimationFrame(() => {
+        const content = document.querySelector('[data-slot="color-picker-content"]');
+        const input =
+          content?.querySelector<HTMLInputElement>('input[aria-label="Hex color value"]') ??
+          content?.querySelector<HTMLInputElement>("input");
+        input?.focus();
+        input?.select();
+      });
+    }
+  };
 
   return (
     <div
@@ -62,42 +86,52 @@ export const ColorField = memo(function ColorField({
         {colorKey}
       </label>
 
-      {/* The hex value field with a clickable swatch on its left edge: clicking
-          the swatch opens the OS RGB/hex picker, the field accepts typed/pasted
-          hex. The native <input type="color"> is visually hidden but still the
-          actual picker — the swatch button forwards clicks to it. */}
-      <div
-        className={cn(
-          "border-input focus-within:border-ring focus-within:ring-ring/50 flex h-7 w-32 items-center overflow-hidden rounded-md border bg-transparent focus-within:ring-[3px]",
-          !valid && "border-destructive",
-        )}
-      >
-        <button
-          type="button"
-          onClick={() => colorInputRef.current?.click()}
-          title={`Pick ${colorKey} color`}
-          aria-label={`Pick ${colorKey} color`}
-          className="hover:opacity-80 h-full w-7 shrink-0 cursor-pointer border-r"
-          style={{ backgroundColor: isHex(value ?? "") ? value : "transparent" }}
-        />
-        <input
-          id={id}
-          value={text}
-          spellCheck={false}
-          onChange={(e) => commit(e.target.value)}
-          className="h-full w-full min-w-0 bg-transparent px-2 font-mono text-xs outline-none"
-        />
-        {/* The real picker — visually hidden, opened via the swatch button. */}
-        <input
-          ref={colorInputRef}
-          type="color"
-          value={pickerValue}
-          onChange={(e) => commit(e.target.value)}
-          tabIndex={-1}
-          aria-hidden
-          className="sr-only"
-        />
-      </div>
+      <ColorPicker value={hex} onValueChange={handleValueChange} onOpenChange={handleOpenChange}>
+        <div
+          className={cn(
+            "border-input focus-within:border-ring focus-within:ring-ring/50 flex h-7 w-32 items-center overflow-hidden rounded-md border bg-transparent focus-within:ring-[3px]",
+            !valid && "border-destructive",
+          )}
+        >
+          {/* Swatch opens the picker on the area/sliders. */}
+          <ColorPickerTrigger asChild>
+            <button
+              type="button"
+              title={`Pick ${colorKey} color`}
+              aria-label={`Pick ${colorKey} color`}
+              className="h-full w-7 shrink-0 cursor-pointer border-r hover:opacity-80"
+            >
+              <ColorPickerSwatch className="h-full w-full rounded-none border-0" />
+            </button>
+          </ColorPickerTrigger>
+
+          {/* Hex text opens the picker with its hex input focused, so a paste
+              overwrites the value quickly. */}
+          <ColorPickerTrigger asChild>
+            <button
+              id={id}
+              type="button"
+              onClick={() => {
+                focusInputOnOpen.current = true;
+              }}
+              title={`Edit ${colorKey} hex`}
+              aria-label={`Edit ${colorKey} hex`}
+              className="h-full w-full min-w-0 cursor-text px-2 text-left font-mono text-xs"
+            >
+              {value ?? ""}
+            </button>
+          </ColorPickerTrigger>
+        </div>
+
+        <ColorPickerContent className="w-56">
+          <ColorPickerArea />
+          <ColorPickerHueSlider />
+          <div className="flex items-center gap-2">
+            <ColorPickerEyeDropper />
+            <ColorPickerInput withoutAlpha />
+          </div>
+        </ColorPickerContent>
+      </ColorPicker>
     </div>
   );
 });
