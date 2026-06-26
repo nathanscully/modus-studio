@@ -180,11 +180,20 @@ export interface GenerateOptions {
   /** 'cool' | 'warm' override; if absent, inferred from bg-main. */
   preference?: "cool" | "warm";
   /**
-   * Core palette to fill remaining entries (the CORE-PALETTE arg). In Emacs this
-   * is inferred (operandi/vivendi); here the caller passes the appropriate base
-   * Modus palette so generated themes are complete with no void colors.
+   * Core palette to fill remaining COLOR entries (the colors half of the
+   * CORE-PALETTE arg). In Emacs this is inferred (operandi/vivendi); here the
+   * caller passes the appropriate base Modus palette so generated themes are
+   * complete with no void colors.
    */
   corePalette: Palette;
+  /**
+   * Core MAPPINGS to fill remaining semantic roles (the mappings half of
+   * CORE-PALETTE). Emacs's CORE-PALETTE is one alist holding both layers, so its
+   * mappings (keyword→…, string→…, comment→…) backfill any role neither provided
+   * nor derived. Omitting this leaves syntax roles unmapped — pass the core
+   * theme's mappings so a generated theme highlights code like Modus does.
+   */
+  coreMappings?: Mapping;
   /** MAPPINGS override; entries here are NOT re-derived. */
   mappings?: Mapping;
 }
@@ -342,8 +351,16 @@ export function generatePalette(baseColors: Palette, options: GenerateOptions): 
   pushMapping("fg-term-white-bright", bgDarkP ? "fg-main" : "bg-main");
 
   // --- Assemble with first-wins precedence (base → derived → core) ---
+  // Spread order is reversed from precedence: later spreads win in JS, so the
+  // highest-precedence source goes last. Colors: base > derived > core. Mappings:
+  // base (override) > derived > core. This mirrors Emacs's seq-uniq keep-first
+  // over (base ++ derived ++ core).
   const palette: Palette = { ...options.corePalette, ...derivedColors, ...baseColors };
-  const mappings = { ...derivedMappings, ...baseMappings } as Mapping;
+  const mappings = {
+    ...(options.coreMappings ?? {}),
+    ...derivedMappings,
+    ...baseMappings,
+  } as Mapping;
 
   return { palette, mappings };
 }

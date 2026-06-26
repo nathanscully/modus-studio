@@ -43,3 +43,24 @@ export interface Preset {
   label: string;
   doc: ThemeDoc;
 }
+
+/**
+ * A classic color scheme (Solarized, Nord, …) expressed the way upstream defines
+ * it: a small set of BASE-COLORS, not a full Modus palette. Feeding `base`
+ * through `generatePalette` derives the complete palette + default mappings (see
+ * generate-palette.ts), so the app can expand "a handful of brand colors" into a
+ * valid Modus theme live. `mode` picks the core palette to fill the remainder.
+ *
+ * `base` must include at least `bg-main` and `fg-main`; providing the six hues
+ * (red/green/yellow/blue/magenta/cyan) gives a palette with no trace of core
+ * Modus colors (per the manual's Solarized walkthrough).
+ */
+export interface BaseScheme {
+  id: string;
+  label: string;
+  description: string;
+  mode: ThemeMode;
+  /** Optional cool/warm bias; if absent, inferred from bg-main. */
+  preference?: "cool" | "warm";
+  base: Palette;
+}
