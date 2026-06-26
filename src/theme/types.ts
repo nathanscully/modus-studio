@@ -63,4 +63,12 @@ export interface BaseScheme {
   /** Optional cool/warm bias; if absent, inferred from bg-main. */
   preference?: "cool" | "warm";
   base: Palette;
+  /**
+   * Optional semantic-role overrides applied as generatePalette's MAPPINGS arg.
+   * Use this to make a port match its source's own face choices rather than
+   * inheriting Modus's defaults — e.g. Solarized maps keyword→green, fnname→blue,
+   * which Modus would otherwise assign differently. Entries here win over derived
+   * and core mappings.
+   */
+  mappings?: Mapping;
 }
