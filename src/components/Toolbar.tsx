@@ -5,20 +5,18 @@
 
 import { toast } from "sonner";
 
+import { PresetCombobox } from "~/components/PresetCombobox.tsx";
 import { Button } from "~/components/ui/button.tsx";
 import { Input } from "~/components/ui/input.tsx";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select.tsx";
 import { useThemeStore, type LanguageId } from "~/state/theme-store.tsx";
 import { LANGUAGES } from "~/theme/highlight/languages.ts";
-import { PRESET_GROUPS } from "~/theme/presets.ts";
 
 export function Toolbar() {
   const { doc, baseId, language, setMeta, loadPreset, setLanguage, reset, shareUrl } =
@@ -37,23 +35,7 @@ export function Toolbar() {
     <div className="bg-card flex flex-wrap items-center gap-3 border-b px-4 py-2">
       <h1 className="text-sm font-bold">Modus Theme Generator</h1>
 
-      <Select value={baseId} onValueChange={loadPreset}>
-        <SelectTrigger size="sm" className="w-52 text-xs">
-          <SelectValue placeholder="Base preset" />
-        </SelectTrigger>
-        <SelectContent>
-          {PRESET_GROUPS.map((group) => (
-            <SelectGroup key={group.label}>
-              <SelectLabel>{group.label}</SelectLabel>
-              {group.presets.map((p) => (
-                <SelectItem key={p.id} value={p.id}>
-                  {p.label}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          ))}
-        </SelectContent>
-      </Select>
+      <PresetCombobox value={baseId} onSelect={loadPreset} />
 
       <Input
         value={doc.meta.name}
