@@ -1,0 +1,12 @@
+# pnpm supply-chain hardening. This is a single-package repo (no workspaces),
+# but pnpm reads these install-policy settings from pnpm-workspace.yaml.
+packages: []
+
+# Don't install any package version published less than 7 days ago. A
+# compromised release is usually caught and yanked within that window, so the
+# delay blunts "install a freshly-published malicious version" attacks.
+minimumReleaseAge: 10080 # minutes = 7 days
+
+# Reject silent downgrades: pnpm will refuse to replace an installed version
+# with an older one unless explicitly intended, preventing downgrade attacks.
+trustPolicy: no-downgrade
