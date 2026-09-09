@@ -72,15 +72,16 @@ function hslToRgb(H: number, S: number, L: number): [number, number, number] {
 }
 
 /**
- * color-lighten-hsl as shipped in released Emacs (verified against 30.2, which
- * is what the architecture-doc verification used and what stock users have):
- * a symmetric scale of luminance, L_new = clamp(L * (1 + percent/100)). So +5
- * brightens by 5%, −20 darkens by 20%. (The modus-themes `main` checkout carries
- * a different, asymmetric variant; we deliberately match the released behavior
- * so derived shades equal real load-time output — see generate-palette.test.ts.)
+ * color-lighten-hsl as shipped in Emacs 31 (lisp/color.el): lightening moves
+ * L toward 1 by a fraction of the remaining headroom, L + p * (1 - L), while
+ * darkening scales it, L * (1 - |p|). Emacs 30 scaled in both directions, so
+ * derived shades differ between the two releases; we match 31, which is what
+ * the pinned modus-themes targets and what the screenshot build runs.
  */
 function lightenHsl(H: number, S: number, L: number, percent: number): [number, number, number] {
-  return [H, S, clamp(L * (1 + percent / 100))];
+  const p = percent / 100;
+  const next = p > 0 ? L * (1 - p) + p : L - L * Math.abs(p);
+  return [H, S, clamp(next)];
 }
 
 /**
@@ -145,7 +146,7 @@ const warmer = (color: string, alpha: number) => blendHex(color, "#ff0000", alph
 const cooler = (color: string, alpha: number) => blendHex(color, "#0000ff", alpha);
 
 /** modus-themes-color-warm-p: more red than blue channel. */
-function isWarm(color: string): boolean {
+export function isWarm(color: string): boolean {
   const [r, , b] = hexToRgb(color);
   return r > b;
 }
@@ -350,6 +351,34 @@ export function generatePalette(baseColors: Palette, options: GenerateOptions): 
   pushMapping("fg-term-white", bgDarkP ? "fg-dim" : "bg-active");
   pushMapping("fg-term-white-bright", bgDarkP ? "fg-main" : "bg-main");
 
+  pushMapping("bg-popup", "bg-dim");
+  pushMapping("bg-diff-context", "bg-dim");
+  pushMapping("bg-added-fringe", "green");
+  pushMapping("bg-changed-fringe", "yellow");
+  pushMapping("bg-removed-fringe", "red");
+
+  pushMapping("rust", "red-faint");
+  pushMapping("gold", "yellow-faint");
+  pushMapping("olive", "green-faint");
+  pushMapping("slate", "cyan-faint");
+  pushMapping("indigo", "blue-warmer");
+  pushMapping("maroon", "magenta-warmer");
+  pushMapping("pink", "magenta-faint");
+
+  pushMapping("bg-clay", "bg-red-nuanced");
+  pushMapping("fg-clay", "red-cooler");
+  pushMapping("bg-ochre", "bg-yellow-nuanced");
+  pushMapping("fg-ochre", "yellow-cooler");
+  pushMapping("bg-lavender", "bg-magenta-nuanced");
+  pushMapping("fg-lavender", "magenta-cooler");
+  pushMapping("bg-sage", "bg-green-nuanced");
+  pushMapping("fg-sage", "green-cooler");
+
+  for (const hue of ["red", "green", "yellow", "blue", "magenta", "cyan"] as const) {
+    pushMapping(`bg-graph-${hue}-0`, bgDarkP ? `bg-${hue}-intense` : `bg-${hue}-subtle`);
+    pushMapping(`bg-graph-${hue}-1`, bgDarkP ? `bg-${hue}-subtle` : `bg-${hue}-intense`);
+  }
+
   // --- Assemble with first-wins precedence (base → derived → core) ---
   // Spread order is reversed from precedence: later spreads win in JS, so the
   // highest-precedence source goes last. Colors: base > derived > core. Mappings:
@@ -362,12 +391,19 @@ export function generatePalette(baseColors: Palette, options: GenerateOptions): 
     ...baseMappings,
   } as Mapping;
 
-  // seq-uniq is first-wins across the WHOLE combined alist and colors precede
-  // mappings, so a base or derived NAMED COLOR shadows every mapping for that
-  // key (e.g. a theme that sets `fringe` as a color must not inherit the
-  // core's fringe→bg-dim mapping). Core colors come last and shadow nothing.
-  for (const key of Object.keys({ ...derivedColors, ...baseColors })) {
+  // seq-uniq is first-wins across the WHOLE combined alist, in the order
+  // (base colors, derived colors, mappings, derived mappings, core). So a base
+  // or derived NAMED COLOR shadows every mapping for that key (a theme that
+  // sets `fringe` as a color must not inherit the core's fringe→bg-dim
+  // mapping), and a base or derived MAPPING shadows the core's named color for
+  // that key (bg-region→bg-active wins over the core's bg-region hex). Core
+  // entries come last and shadow nothing.
+  const ownColors = { ...derivedColors, ...baseColors };
+  for (const key of Object.keys(ownColors)) {
     delete (mappings as Record<string, MappingValue>)[key];
+  }
+  for (const key of Object.keys({ ...derivedMappings, ...baseMappings })) {
+    if (!(key in ownColors)) delete (palette as Record<string, string>)[key];
   }
 
   return { palette, mappings };

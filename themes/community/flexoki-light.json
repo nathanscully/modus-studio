@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "flexoki-light",
+  "source": {
+    "repo": "splintersuidman/flexoki-themes",
+    "rev": "9875c5969cb7b797f450a2fb81384d17da6eda29",
+    "files": ["flexoki-themes.el", "flexoki-light-theme.el"],
+    "theme": "flexoki-light"
+  },
+  "install": "(use-package flexoki-themes :vc (:url \"https://github.com/splintersuidman/flexoki-themes\") :config (load-theme 'flexoki-light t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

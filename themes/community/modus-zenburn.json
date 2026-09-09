@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "modus-zenburn",
+  "source": {
+    "repo": "kiennq/modus-zenburn",
+    "rev": "4043b0936332ddfcd8f3fbcef40598fd8abb5256",
+    "files": ["modus-zenburn.el", "modus-zenburn-theme.el"],
+    "theme": "modus-zenburn"
+  },
+  "install": "(use-package modus-zenburn :vc (:url \"https://github.com/kiennq/modus-zenburn\") :config (load-theme 'modus-zenburn t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

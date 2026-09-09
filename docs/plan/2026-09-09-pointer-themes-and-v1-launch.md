@@ -168,16 +168,35 @@ Effort: medium. Impact: 60 to 90 themes at launch instead of 46.
 
 ### D. Gallery and editor for pointers
 
-1. Card: author, license badge, repo link, install snippet copy button.
-2. Editor: "Source" panel with the same, plus "upstream also defines custom
+Decided 2026-09-09: the editor presents the author's model, not the expanded
+one. Today it mirrors the engine one to one: 160 named colors and 174 roles in
+35 groups across two tabs, which only makes sense to someone who already knows
+how Modus layers palette and mappings. Theme authors write 20 to 70 base colors
+and a few mapping overrides and let `generate-palette` derive the rest.
+
+1. The working doc becomes base colors plus overrides plus a core reference,
+   the `partial` shape. Everything else is derived live through
+   `generatePalette`, the same math Emacs runs. A theme resolved as `full`
+   (Modus, Ef, peppers) loads with its whole palette as base.
+2. The editor opens on one Essentials panel: bg-main, fg-main, bg-dim, fg-dim
+   and the six hues, about 12 swatches. Click-to-inspect in the preview opens a
+   single row for that color or role and adds it to a short Overrides list.
+   An Advanced toggle reveals the full palette and mappings.
+3. Toolbar trimmed to preset, Download, and a menu holding name, language,
+   share link, reset and the theme toggle. The export drawer becomes one
+   Export dialog. The exporter writes the author-style file: base colors,
+   overrides and one `generate-palette` call, which is what the resolver reads.
+4. Card: author, license badge, repo link, install snippet copy button.
+   Editor: a Source panel with the same, plus "upstream also defines custom
    faces" when true. Export header carries the credit.
-3. Submit dialog becomes "Add your theme": download the `.el`, push it to a
+5. Submit dialog becomes "Add your theme": download the `.el`, push it to a
    repo, paste the repo URL; the dialog drafts the pointer JSON and opens the
    GitHub new-file page for `themes/community/<id>.json`. The JSON is small, so
-   the `value=` parameter can carry it.
-4. CONTRIBUTING and README rewritten for the pointer flow.
+   the `value=` parameter can carry it. CONTRIBUTING and README rewritten for
+   the pointer flow.
 
-Effort: medium. Impact: contribution takes one minute and credits the author.
+Effort: large. Impact: a first-time user meets 12 swatches instead of 334 rows,
+and contribution takes one minute and credits the author.
 
 ### E. Launch cleanup (from the 2026-09-09 review)
 

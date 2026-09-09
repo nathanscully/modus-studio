@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "modus-vivendi-deuteranopia",
+  "source": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": ["modus-themes.el", "modus-vivendi-deuteranopia-theme.el"],
+    "theme": "modus-vivendi-deuteranopia"
+  },
+  "install": "(load-theme 'modus-vivendi-deuteranopia t)",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

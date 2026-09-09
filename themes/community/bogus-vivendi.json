@@ -1,0 +1,11 @@
+{
+  "kind": "source",
+  "id": "bogus-vivendi",
+  "source": {
+    "repo": "andiogenes/bogus-themes",
+    "rev": "f4c68b7f4ca3ba076341b9d158923b62eb68956e",
+    "files": ["bogus-vivendi-theme.el"],
+    "theme": "bogus-vivendi"
+  },
+  "install": "(use-package bogus-themes :vc (:url \"https://github.com/andiogenes/bogus-themes\") :config (load-theme 'bogus-vivendi t))"
+}

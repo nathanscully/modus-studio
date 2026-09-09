@@ -1,27 +1,39 @@
 # Contributing a theme
 
-Two ways to submit a theme. Both land as a file at `themes/community/<id>.json`.
+Themes live in their authors' repos. This repo holds one small pointer file per
+theme under `themes/community/`, and a build step reads the palette out of the
+upstream `.el` at a pinned commit. To add yours:
 
-## Path 1: in-app (recommended)
+1. Publish the theme in a public GitHub repo. It must define its palette as
+   data: a quoted list, `append`, and `modus-themes-generate-palette`, then call
+   `modus-themes-theme`. Every theme built the usual way already does.
+2. From a clone of this repo, run
+   `pnpm run pin <owner/repo> <theme-symbol>` and then
+   `pnpm run resolve -- --update-lock`. The first writes
+   `themes/community/<theme>.json`, the second pins file hashes in
+   `themes/lock.json` and writes the resolved theme.
+3. Run `pnpm exec vp test`, then open a PR with the pointer and the lock change.
 
-1. Build your theme in the editor.
-2. Open the export panel and click **Submit your theme**.
-3. Fill in the theme id (slug), your name, and an optional homepage.
-4. The dialog validates the theme file live and flags any issues before you
-   submit.
-5. Click **Copy JSON** (or **Download**), then **Open PR on GitHub** — this
-   opens a new-file page pre-filled with the right path. Paste the JSON in,
-   propose the file, and open the PR.
+A pointer looks like this:
 
-## Path 2: manual PR
+```jsonc
+{
+  "kind": "source",
+  "id": "modus-vague",
+  "source": {
+    "repo": "paniash/modus-vague",
+    "rev": "a3b94751ef2ab3e3ccae15b641cee5370e652c0f",
+    "files": ["modus-vague-theme.el"],
+    "theme": "modus-vague",
+  },
+  "install": "(use-package modus-vague :vc (:url \"https://github.com/paniash/modus-vague\"))",
+  "meta": { "license": "GPL-3.0" }, // optional overrides for label, description, author, homepage, license, tags
+}
+```
 
-1. Fork the repo.
-2. Add `themes/community/<id>.json` following the format below (`<id>` must
-   equal the file stem).
-3. Run `pnpm exec vp test` locally to confirm it validates.
-4. To see it rendered, run `pnpm dev` and open the gallery in a browser (the
-   app is client-rendered — your theme won't show up in `curl`'d HTML).
-5. Open a PR.
+Author, homepage and license come from the `.el` header when the pointer does
+not set them. A palette built by a custom function cannot be read; the resolver
+says so with the file and line.
 
 ## Theme file format
 

@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "peppers",
+  "source": {
+    "repo": "emacsmirror/peppers-theme",
+    "rev": "8a8dd530f8b14651b070593edd6a6dfdff7764c9",
+    "files": ["peppers-theme.el"],
+    "theme": "peppers"
+  },
+  "install": "(use-package peppers-theme :vc (:url \"https://github.com/emacsmirror/peppers-theme\") :config (load-theme 'peppers t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

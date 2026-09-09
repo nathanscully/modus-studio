@@ -1,0 +1,11 @@
+{
+  "kind": "source",
+  "id": "nano-like-modus",
+  "source": {
+    "repo": "benleis1/nano-like-modus-theme",
+    "rev": "2b81d57ed0dade21461cd75081f6d294a071006e",
+    "files": ["nano-like-modus-theme.el"],
+    "theme": "nano-like-modus"
+  },
+  "install": "(use-package nano-like-modus-theme :vc (:url \"https://github.com/benleis1/nano-like-modus-theme\") :config (load-theme 'nano-like-modus t))"
+}

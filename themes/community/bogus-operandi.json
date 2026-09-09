@@ -1,0 +1,11 @@
+{
+  "kind": "source",
+  "id": "bogus-operandi",
+  "source": {
+    "repo": "andiogenes/bogus-themes",
+    "rev": "f4c68b7f4ca3ba076341b9d158923b62eb68956e",
+    "files": ["bogus-operandi-theme.el"],
+    "theme": "bogus-operandi"
+  },
+  "install": "(use-package bogus-themes :vc (:url \"https://github.com/andiogenes/bogus-themes\") :config (load-theme 'bogus-operandi t))"
+}

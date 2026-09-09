@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "jinlor-elysia",
+  "source": {
+    "repo": "dalugm/jinlor.el",
+    "rev": "addbfb06ef0298bd754bcb11e0ec1a7064a26527",
+    "files": ["jinlor.el", "jinlor-elysia-theme.el"],
+    "theme": "jinlor-elysia"
+  },
+  "install": "(use-package jinlor :vc (:url \"https://github.com/dalugm/jinlor.el\") :config (load-theme 'jinlor-elysia t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

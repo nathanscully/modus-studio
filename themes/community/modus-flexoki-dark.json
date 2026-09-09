@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "modus-flexoki-dark",
+  "source": {
+    "repo": "dpassen/modus-flexoki",
+    "rev": "30fe4c621dfe7fa430839cf0ef85af11272eac38",
+    "files": ["modus-flexoki.el", "modus-flexoki-dark-theme.el"],
+    "theme": "modus-flexoki-dark"
+  },
+  "install": "(use-package modus-flexoki :vc (:url \"https://github.com/dpassen/modus-flexoki\") :config (load-theme 'modus-flexoki-dark t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

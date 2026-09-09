@@ -56,6 +56,7 @@
             fileset = lib.fileset.unions [
               ./themes
               ./src
+              ./scripts
               ./screenshots
               ./README.md
               ./LICENSE

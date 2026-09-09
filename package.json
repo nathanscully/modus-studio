@@ -5,7 +5,11 @@
   "license": "GPL-3.0-or-later",
   "type": "module",
   "scripts": {
+    "resolve": "node scripts/resolve-themes.ts",
+    "pin": "node scripts/pin-theme.ts",
+    "predev": "pnpm run resolve",
     "dev": "vp dev",
+    "prebuild": "pnpm run resolve",
     "build": "vp build",
     "preview": "vp preview",
     "check": "vp check",

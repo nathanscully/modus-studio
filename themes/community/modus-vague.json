@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "modus-vague",
+  "source": {
+    "repo": "paniash/modus-vague",
+    "rev": "a3b94751ef2ab3e3ccae15b641cee5370e652c0f",
+    "files": ["modus-vague.el", "modus-vague-theme.el"],
+    "theme": "modus-vague"
+  },
+  "install": "(use-package modus-vague :vc (:url \"https://github.com/paniash/modus-vague\") :config (load-theme 'modus-vague t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

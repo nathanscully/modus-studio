@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "modus-operandi-tritanopia",
+  "source": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": ["modus-themes.el", "modus-operandi-tritanopia-theme.el"],
+    "theme": "modus-operandi-tritanopia"
+  },
+  "install": "(load-theme 'modus-operandi-tritanopia t)",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

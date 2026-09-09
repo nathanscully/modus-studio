@@ -1,0 +1,661 @@
+{
+  "bogus-operandi": {
+    "repo": "andiogenes/bogus-themes",
+    "rev": "f4c68b7f4ca3ba076341b9d158923b62eb68956e",
+    "files": {
+      "bogus-operandi-theme.el": "sha256-rncsWTUbJnGNut0iI2Nx5AnEllvwQzMaToeroRC/aYY="
+    }
+  },
+  "bogus-vivendi": {
+    "repo": "andiogenes/bogus-themes",
+    "rev": "f4c68b7f4ca3ba076341b9d158923b62eb68956e",
+    "files": {
+      "bogus-vivendi-theme.el": "sha256-/8GTrzQgSQdoML2amcgYddRaaVHc/YcOeFWRWmFfkp8="
+    }
+  },
+  "ef-arbutus": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-arbutus-theme.el": "sha256-BfHunbLGbNcVq202/5SThsR9//kaffHyA9AVs+owTbs="
+    }
+  },
+  "ef-arcadia": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-arcadia-theme.el": "sha256-fAF573Zbm/HXlhIjUjbSnuvKyptKKH/4ApWe0g2xVLY="
+    }
+  },
+  "ef-atlantis": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-atlantis-theme.el": "sha256-Ddg8tYNRjmogzXiB5NIlHIDBFBtQ3Cn74TGY5i82IPY="
+    }
+  },
+  "ef-autumn": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-autumn-theme.el": "sha256-qMElL5hEyvMTojFezx6O9NkklcnyBn2HW7HHg7CHGa0="
+    }
+  },
+  "ef-bio": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-bio-theme.el": "sha256-XLhGhaIR+0bkfKNV3JHlKt8MGF3AYDz+J8Y4VfIA3R8="
+    }
+  },
+  "ef-cherie": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-cherie-theme.el": "sha256-7HF6Rpiz+jmOt/ghStukfU9RurQsOSW6D/46vF+CcSo="
+    }
+  },
+  "ef-cyprus": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-cyprus-theme.el": "sha256-HRi++dDht/MKMpDEj9xSRlvcpiVk5ATBAZux/MjLDCc="
+    }
+  },
+  "ef-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-dark-theme.el": "sha256-mYvALy5SIFrQbfiKFNUxaK7x7Bu8xv4rDNFf7Y5cja4="
+    }
+  },
+  "ef-day": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-day-theme.el": "sha256-4PvlyqbmApdeWc3Tgcl3OmcKhk3Xu3vyNFQUhWFICYs="
+    }
+  },
+  "ef-deuteranopia-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-deuteranopia-dark-theme.el": "sha256-MzsMwPmFdE2Xvuv0M1QruTsxSzMRF6pX6RED2+ycKf4="
+    }
+  },
+  "ef-deuteranopia-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-deuteranopia-light-theme.el": "sha256-fZyUzB7d3GFiyJyFu97tFOW5OiHsg6VXENalAb8pXPc="
+    }
+  },
+  "ef-dream": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-dream-theme.el": "sha256-8vQvC3xTc2hA/D/1dRI147h8xTWwTdrzQj4pJlSL+7Q="
+    }
+  },
+  "ef-duo-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-duo-dark-theme.el": "sha256-zI5mGaFCmAc9mHBGCBxUG4s4VKZEZJe9wlTD+tBlzDA="
+    }
+  },
+  "ef-duo-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-duo-light-theme.el": "sha256-jorL6hjb9RtBoJ5/x4n4r2ZrLKjAmaJotSdb/EVBpf8="
+    }
+  },
+  "ef-eagle": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-eagle-theme.el": "sha256-848k10aN8y+JRaBXLIViI/g1G46gULcXzjawBROZ460="
+    }
+  },
+  "ef-elea-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-elea-dark-theme.el": "sha256-92409nasH7zmCMXzgDPDXjcFCWGbmjrNAqUY71iwEQc="
+    }
+  },
+  "ef-elea-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-elea-light-theme.el": "sha256-rNNjUQ0+S2ONsXh4O949RJJXTA9ciJ+EUlGUn0NWfRY="
+    }
+  },
+  "ef-fig": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-fig-theme.el": "sha256-5VisuFYoAo01oaTzevc4qjUGLyam+L6lNQSMyhQntNI="
+    }
+  },
+  "ef-frost": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-frost-theme.el": "sha256-LdL+dXXXYJRlLZ4E3mBNsc0c3xWC4UlLxkaypuQCr7A="
+    }
+  },
+  "ef-kassio": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-kassio-theme.el": "sha256-BoNyiS6OQTNnclL79Gg53K8079IR1NICFI4DcRGBdfk="
+    }
+  },
+  "ef-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-light-theme.el": "sha256-i/+sy4kwpenlGUhcDtfhPPSvTIbNoeYsbQvFlzKXduk="
+    }
+  },
+  "ef-maris-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-maris-dark-theme.el": "sha256-KwUxpUD0tR5ST1Ue1zdAmfnXQ7TeRYreDFK6GO5r/kY="
+    }
+  },
+  "ef-maris-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-maris-light-theme.el": "sha256-lTpDkdkak6xzR3elMAHRtRTCLEtyM8kyrgKaWwHN8/c="
+    }
+  },
+  "ef-melissa-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-melissa-dark-theme.el": "sha256-hUuBIx24O8IXsMhnHyPskhY6lrKPBF/4ebunOKntiLs="
+    }
+  },
+  "ef-melissa-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-melissa-light-theme.el": "sha256-uHGbqN36kSyY2HbVzFMME71lieNLYXCThI5JKqviot0="
+    }
+  },
+  "ef-night": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-night-theme.el": "sha256-XiuC1NPHlM3B1G/ipspU7+1N98qu+j6A1vVmqaJLyIE="
+    }
+  },
+  "ef-orange": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-orange-theme.el": "sha256-N0unFXiTEjyq+J3zAhU85XwW5K1LUfEnuTBrgFYKai0="
+    }
+  },
+  "ef-owl": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-owl-theme.el": "sha256-uJttlWcHErh0L0ORQWSDop1DFTI6IYYAWQFg4TLHDsg="
+    }
+  },
+  "ef-reverie": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-reverie-theme.el": "sha256-RzL+quqxTzm2LLkiCWdJ0OnF1WH2GS4T3Co9hynR/Us="
+    }
+  },
+  "ef-rosa": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-rosa-theme.el": "sha256-clGV6RnJRmffvhhhYdY/EXmbk9dOhG7BQEkA800yDHk="
+    }
+  },
+  "ef-spring": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-spring-theme.el": "sha256-7qoQT5nWQci+IQ01VeugKXVtXcei+aNCr1JgRcOoLGA="
+    }
+  },
+  "ef-summer": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-summer-theme.el": "sha256-TxZBkT3XcF8D9bMnGlcNW0KJvdl0ZluJGRZPLkN5n70="
+    }
+  },
+  "ef-symbiosis": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-symbiosis-theme.el": "sha256-j3h+0tdbtwc3lsAPfhAz1ukvOTFJOURt0tjpXLwWhCI="
+    }
+  },
+  "ef-trio-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-trio-dark-theme.el": "sha256-03ffzKaMvnBEQl+H3oc6AAepYYfBy++iuew2DyEIrXg="
+    }
+  },
+  "ef-trio-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-trio-light-theme.el": "sha256-E7iDZuuJHWSW4Gxyx+9VlDxyCVvMk/RrtnRzreuI/NE="
+    }
+  },
+  "ef-tritanopia-dark": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-tritanopia-dark-theme.el": "sha256-3ox/QaImmBF38KpcnVutHez4Vp0sFozE7G1Ek+Q1a9Q="
+    }
+  },
+  "ef-tritanopia-light": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-tritanopia-light-theme.el": "sha256-8rCaqBTBlNHkkUSPiXXBhcFPfZAZWN12C05mfY2u0dY="
+    }
+  },
+  "ef-winter": {
+    "repo": "protesilaos/ef-themes",
+    "rev": "e1f617607a5f0692b398365dcd8412ba1e98ccb3",
+    "files": {
+      "ef-themes.el": "sha256-TuuoVeW7fiD4p4eASMxcSltfTiDK2uhy3HngTUf7btA=",
+      "ef-winter-theme.el": "sha256-uxi21Zgr7rdqN87ZIR6XL4To52r5V5RWqozveUrgvLk="
+    }
+  },
+  "flexoki-dark": {
+    "repo": "splintersuidman/flexoki-themes",
+    "rev": "9875c5969cb7b797f450a2fb81384d17da6eda29",
+    "files": {
+      "flexoki-themes.el": "sha256-2OCevgmq60eX8vfZb8f/Hm94JlNeZ0IqMKMEP5IYInc=",
+      "flexoki-dark-theme.el": "sha256-WCO73Wf9A9nAEz6IEGzw+bIfrHorI0PNVKPcnSML8v0="
+    }
+  },
+  "flexoki-light": {
+    "repo": "splintersuidman/flexoki-themes",
+    "rev": "9875c5969cb7b797f450a2fb81384d17da6eda29",
+    "files": {
+      "flexoki-themes.el": "sha256-2OCevgmq60eX8vfZb8f/Hm94JlNeZ0IqMKMEP5IYInc=",
+      "flexoki-light-theme.el": "sha256-a+jozLenRBgka7wOgGB2M4J3dX6L7ZfI1sdBlhR/D1k="
+    }
+  },
+  "jinlor-elysia": {
+    "repo": "dalugm/jinlor.el",
+    "rev": "addbfb06ef0298bd754bcb11e0ec1a7064a26527",
+    "files": {
+      "jinlor.el": "sha256-GPz9JIhKrNoXjsqVEIEwslPATDILGKiz9wXxWg9JWyc=",
+      "jinlor-elysia-theme.el": "sha256-JFU1XdKjXi7k2XYSMQJnMDkHgMbF7lh1NgJ3zzCWjmM="
+    }
+  },
+  "jinlor-palace": {
+    "repo": "dalugm/jinlor.el",
+    "rev": "addbfb06ef0298bd754bcb11e0ec1a7064a26527",
+    "files": {
+      "jinlor.el": "sha256-GPz9JIhKrNoXjsqVEIEwslPATDILGKiz9wXxWg9JWyc=",
+      "jinlor-palace-theme.el": "sha256-5/vNo/H99J4d12rfFBBcCSHXbx+s0vjDEBTh0YysjDc="
+    }
+  },
+  "modern-ayu-dark": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-ayu-dark-theme.el": "sha256-8/U0GqDCsmKpeBQd3B2j8ZHfeGsKYk0DX6s7dwHv9OY="
+    }
+  },
+  "modern-ayu-light": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-ayu-light-theme.el": "sha256-XC9cVhnE2FrmrSpk1VcguBW/fznBxokDoQ/C1/jNzzM="
+    }
+  },
+  "modern-ayu-mirage": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-ayu-mirage-theme.el": "sha256-gIXrfXILB0dX1hlz8JRDetkkaxSCpqdfsVNo94JBCy4="
+    }
+  },
+  "modern-catppuccin-frappe": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-catppuccin-frappe-theme.el": "sha256-bORv1MKZQvhrCsATTvms3pstj7qAA3XcRJgkBvhDplA="
+    }
+  },
+  "modern-catppuccin-latte": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-catppuccin-latte-theme.el": "sha256-4bO2QPMOqpDZZsYsLDzxjPTlNkY9gF/ElSGzYb64xkU="
+    }
+  },
+  "modern-catppuccin-macchiato": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-catppuccin-macchiato-theme.el": "sha256-Posh9UAB24YSDZIOTMVbBCJZIm2frCWvSH+65hJa6oI="
+    }
+  },
+  "modern-catppuccin-mocha": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-catppuccin-mocha-theme.el": "sha256-WiEV0LWatx27XzaN0qJnGVCY9hTdTNvM8zkGMfQxEjQ="
+    }
+  },
+  "modern-deep-atom": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-deep-atom-theme.el": "sha256-Ov5/MqQ8XXlsZQYckUJgkNhNWhUiy5F6ePHpHxw/a8s="
+    }
+  },
+  "modern-fluoromachine-high-contrast": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-fluoromachine-high-contrast-theme.el": "sha256-d+HXjQpv5oMn2IgDtLar5VVL0TTTQFg61fqG+g5hFhM="
+    }
+  },
+  "modern-github-dark": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-github-dark-theme.el": "sha256-K0kyFP7Tibet1AmCD7jmFWyiMrBpqGXbIe0kJ5l6L4I="
+    }
+  },
+  "modern-github-light": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-github-light-theme.el": "sha256-nY6tkt6G8j6Ve61un1HybXyRj9FkLg/e+qGh0hxoKO4="
+    }
+  },
+  "modern-gruvbox-material": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-gruvbox-material-theme.el": "sha256-E2Z0XcZQBHY39LKfLDzjvngK7/up9q5ZBVs45VyYQTY="
+    }
+  },
+  "modern-helix": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-helix-theme.el": "sha256-rZJADdpQtyhndXtpZ2UmeyQDVjZRCxXqbyz+GECwgm0="
+    }
+  },
+  "modern-laser": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-laser-theme.el": "sha256-M5nuG6qA/nv8ukykyvMLTuk3z4M3VyGMtrClgvlcp/E="
+    }
+  },
+  "modern-liac-dark": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-liac-dark-theme.el": "sha256-sUM/JYLv51/MZ5joqPjTkKTzv/A9iZBEgjhREcnC5MU="
+    }
+  },
+  "modern-nano-dark": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-nano-dark-theme.el": "sha256-zFXmseKVQ+VCe/4vu5vlzhIy4T1XI44plWFVzimU67A="
+    }
+  },
+  "modern-nano-light": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-nano-light-theme.el": "sha256-ZGJokKF8X3a52lzZmMaqBL6PZnXTJko/svI9P+5Ak4Q="
+    }
+  },
+  "modern-nightfly-purple": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-nightfly-purple-theme.el": "sha256-jElne2L7J5kkhhd2gy2XdwlQneTyrcKX527pLaZAuCo="
+    }
+  },
+  "modern-pinkywinky": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-pinkywinky-theme.el": "sha256-wtu/3fqzyv2v4MOgssNkPAv2+/sfFJ6JAfZMfZCXx3M="
+    }
+  },
+  "modern-pinkywinky-dark": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-pinkywinky-dark-theme.el": "sha256-T+feTfvs0BccHd3Tg/dsorFn/xsyPtn0zIkPJzdfBzY="
+    }
+  },
+  "modern-quiet-light": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-quiet-light-theme.el": "sha256-KrUi5qH43oUu+up+0Gm8LyJC2mpE/lZ3IgRnSg75Ihg="
+    }
+  },
+  "modern-spacegray": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-spacegray-theme.el": "sha256-IuqBxHP+OG37QZfcwPhM9CcnVx9JVSPAjMDrPmGt3Z0="
+    }
+  },
+  "modern-spacegray-light": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-spacegray-light-theme.el": "sha256-vieligXuNIMcAMA5NIFsJWFfdB0Ek5O5OWWOO77Ijuc="
+    }
+  },
+  "modern-tokyo": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-tokyo-theme.el": "sha256-A6mjnRwO5j5+vibQe9LgxY35OqBsizuHaiMvjHqK6Nk="
+    }
+  },
+  "modern-zaiste": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": {
+      "modern-zaiste-theme.el": "sha256-2wHhvMsDJbJPZje4vFljrmyfvyT6zQFGVQlN9qKk9uE="
+    }
+  },
+  "modus-alabaster-dark": {
+    "repo": "dpassen/modus-alabaster",
+    "rev": "a9b4cad48b863d6600dd8acea8d7e51d6ddc0092",
+    "files": {
+      "modus-alabaster.el": "sha256-EkTX3Buyk2CyaS+MJk2EaPjaI8rD3b8ueQSsVdVTOKs=",
+      "modus-alabaster-dark-theme.el": "sha256-s/Y7ABHAwiWNePC+kmOL60R1Fg2JzEpJL9m02die9RQ="
+    }
+  },
+  "modus-alabaster-light": {
+    "repo": "dpassen/modus-alabaster",
+    "rev": "a9b4cad48b863d6600dd8acea8d7e51d6ddc0092",
+    "files": {
+      "modus-alabaster.el": "sha256-EkTX3Buyk2CyaS+MJk2EaPjaI8rD3b8ueQSsVdVTOKs=",
+      "modus-alabaster-light-theme.el": "sha256-H9bEhrdINT72+n5w9j8pq5LrZ+KMu2+nY9b6xzg3IxY="
+    }
+  },
+  "modus-flexoki-dark": {
+    "repo": "dpassen/modus-flexoki",
+    "rev": "30fe4c621dfe7fa430839cf0ef85af11272eac38",
+    "files": {
+      "modus-flexoki.el": "sha256-/w39Nmsvg4xTiiGs2FqInMEzyISFz2sulbtGIzeIBG8=",
+      "modus-flexoki-dark-theme.el": "sha256-BHKb3BQq22aMZzbGgkmn7orJ78kozdnfs3qXHAI9Gto="
+    }
+  },
+  "modus-flexoki-light": {
+    "repo": "dpassen/modus-flexoki",
+    "rev": "30fe4c621dfe7fa430839cf0ef85af11272eac38",
+    "files": {
+      "modus-flexoki.el": "sha256-/w39Nmsvg4xTiiGs2FqInMEzyISFz2sulbtGIzeIBG8=",
+      "modus-flexoki-light-theme.el": "sha256-7iQhc4L+HeqCHpEpjfxcnDy0alU/yXINfCMsf9/AKaY="
+    }
+  },
+  "modus-operandi": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-operandi-theme.el": "sha256-EOMwiAJpJErkWungL+b1V2banhUDbnx/B9fOIoGV3rU="
+    }
+  },
+  "modus-operandi-deuteranopia": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-operandi-deuteranopia-theme.el": "sha256-DvDD4kyPcEQw4rL0cxAcCPuLq5PQmoDbwuotu3maqGE="
+    }
+  },
+  "modus-operandi-tinted": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-operandi-tinted-theme.el": "sha256-E47ZmjI8G5PFL0s3JsryvGNLeadvpjo9Ov92OU218o8="
+    }
+  },
+  "modus-operandi-tritanopia": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-operandi-tritanopia-theme.el": "sha256-gyXOiIcAHPl1ibNGDuiP0zRKKQqBXsJIlF3m0iO3sB8="
+    }
+  },
+  "modus-vague": {
+    "repo": "paniash/modus-vague",
+    "rev": "a3b94751ef2ab3e3ccae15b641cee5370e652c0f",
+    "files": {
+      "modus-vague.el": "sha256-vHEkAN652H9fIE3RgNZpCJzN7TREAfKbSTiXXmT5utc=",
+      "modus-vague-theme.el": "sha256-eJVVT5nIY51VSRp/ihhCwdjMFinW1eeBOYZeQL+2hrs="
+    }
+  },
+  "modus-vivendi": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-vivendi-theme.el": "sha256-lnwj6boXm4BWB3RBnwgd8i52dKrCPFxVC4F+Shzn0Fg="
+    }
+  },
+  "modus-vivendi-deuteranopia": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-vivendi-deuteranopia-theme.el": "sha256-bcxmpg3ON6WBfUbnsfg4rF2Vp5BhEZret8BMeun1EdA="
+    }
+  },
+  "modus-vivendi-tinted": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-vivendi-tinted-theme.el": "sha256-JJPQrQu5S9KtKXptdiiHUaUy/W2NavaUrBQAjKprf6I="
+    }
+  },
+  "modus-vivendi-tritanopia": {
+    "repo": "protesilaos/modus-themes",
+    "rev": "f1ad6c9383bc0ce5a5a9df4f3c3a85d32d34a863",
+    "files": {
+      "modus-themes.el": "sha256-o3zdNQ4nqtcxoT99C7s7x8tgl1dYUIOKn8AXKDLg6AY=",
+      "modus-vivendi-tritanopia-theme.el": "sha256-KPOsD1+t5k3H4nq+nTLn2FV2xAlAl36OMZ8lBV06KLc="
+    }
+  },
+  "modus-zenburn": {
+    "repo": "kiennq/modus-zenburn",
+    "rev": "4043b0936332ddfcd8f3fbcef40598fd8abb5256",
+    "files": {
+      "modus-zenburn.el": "sha256-5rPTcXFjAQamhUHSKInDK5kZqDf6EtiHMYiMfVSI+Ak=",
+      "modus-zenburn-theme.el": "sha256-r3s8mle7zICA3J+ZC2l1O39GmW/fd9sc+aJBlorICCc="
+    }
+  },
+  "modus-zenburn-light": {
+    "repo": "kiennq/modus-zenburn",
+    "rev": "4043b0936332ddfcd8f3fbcef40598fd8abb5256",
+    "files": {
+      "modus-zenburn.el": "sha256-5rPTcXFjAQamhUHSKInDK5kZqDf6EtiHMYiMfVSI+Ak=",
+      "modus-zenburn-light-theme.el": "sha256-aIoL1bQqFLc7X8Z5kWRg44WeacxG4zBp/ydZWE1EzRk="
+    }
+  },
+  "nano-like-modus": {
+    "repo": "benleis1/nano-like-modus-theme",
+    "rev": "2b81d57ed0dade21461cd75081f6d294a071006e",
+    "files": {
+      "nano-like-modus-theme.el": "sha256-1gjy91tgqQk0uM66xhr7PiFP3WoZGERyAbsRTFJLG/k="
+    }
+  },
+  "peppers": {
+    "repo": "emacsmirror/peppers-theme",
+    "rev": "8a8dd530f8b14651b070593edd6a6dfdff7764c9",
+    "files": {
+      "peppers-theme.el": "sha256-Eqw7MoQ3s53GR9FSCHPIK1kOvfOKyAwx/NNW2/nzdsM="
+    }
+  }
+}

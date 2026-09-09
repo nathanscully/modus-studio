@@ -11,7 +11,7 @@
 // The modus-themes engine resolves a mapping that names another mapping by
 // chaining through it, so we do the same (with cycle protection).
 
-import { isColorKey, ROLE_KEYS, type RoleKey } from "./palette-keys.ts";
+import { ROLE_KEYS, type RoleKey } from "./palette-keys.ts";
 import type { MappingValue, ThemeDoc } from "./types.ts";
 
 /** The Emacs sentinel meaning "do not theme this role". */
@@ -20,8 +20,6 @@ export const UNSPECIFIED = "unspecified";
 export function isHex(value: string): boolean {
   return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value);
 }
-
-const ROLE_KEY_SET = new Set<string>(ROLE_KEYS);
 
 /**
  * Resolve a single mapping value to a hex string, or `null` when it is
@@ -35,11 +33,15 @@ export function resolveValue(
 ): string | null {
   if (value == null || value === UNSPECIFIED) return null;
   if (isHex(value)) return value;
-  if (isColorKey(value)) return doc.palette[value] ?? null;
-  // The value names another semantic role: chain through its mapping.
-  if (ROLE_KEY_SET.has(value) && !seen.has(value)) {
+  // Mirrors modus-themes--retrieve-palette-value: a name is looked up in the
+  // theme's own palette first (any named color, including ones outside the
+  // Modus vocabulary), then followed as a role, recursing until a string.
+  const hex = (doc.palette as Record<string, string | undefined>)[value];
+  if (hex) return hex;
+  const next = (doc.mappings as Record<string, MappingValue | undefined>)[value];
+  if (next != null && !seen.has(value)) {
     seen.add(value);
-    return resolveValue(doc, doc.mappings[value as RoleKey], seen);
+    return resolveValue(doc, next, seen);
   }
   return null;
 }

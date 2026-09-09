@@ -80,7 +80,7 @@ describe("PresetCombobox", () => {
     fireEvent.keyDown(search, { key: "ArrowDown" });
 
     await act(async () => {
-      fireEvent.change(search, { target: { value: "vivendi" } });
+      fireEvent.change(search, { target: { value: "vivendi tritanopia" } });
     });
 
     const options = screen.getAllByRole("option");
@@ -88,7 +88,7 @@ describe("PresetCombobox", () => {
     expect(search).toHaveAttribute("aria-activedescendant", options[0]?.id);
 
     fireEvent.keyDown(search, { key: "Enter" });
-    expect(onSelect).toHaveBeenCalledWith("modus-vivendi");
+    expect(onSelect).toHaveBeenCalledWith("modus-vivendi-tritanopia");
   });
 
   it("closes on Escape and returns focus to the trigger", async () => {

@@ -1,0 +1,14 @@
+{
+  "kind": "source",
+  "id": "jinlor-palace",
+  "source": {
+    "repo": "dalugm/jinlor.el",
+    "rev": "addbfb06ef0298bd754bcb11e0ec1a7064a26527",
+    "files": ["jinlor.el", "jinlor-palace-theme.el"],
+    "theme": "jinlor-palace"
+  },
+  "install": "(use-package jinlor :vc (:url \"https://github.com/dalugm/jinlor.el\") :config (load-theme 'jinlor-palace t))",
+  "meta": {
+    "license": "GPL-3.0"
+  }
+}

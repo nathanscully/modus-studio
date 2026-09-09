@@ -19,8 +19,16 @@ import type { MappingValue, Palette, ThemeDoc } from "./types.ts";
  */
 function completePalette(doc: ThemeDoc): Palette {
   const base = getModusCore(doc.meta.mode).palette;
-  return { ...base, ...doc.palette };
+  return { ...LEGACY_COLORS[doc.meta.mode], ...base, ...doc.palette };
 }
+
+// modus-themes 5 dropped these named colors, but the modus-themes 4 face specs
+// bundled with Emacs 30 still read them, so an export must bind them to load
+// there. Values are the 4.x operandi/vivendi ones.
+const LEGACY_COLORS: Record<ThemeDoc["meta"]["mode"], Palette> = {
+  light: { "bg-char-0": "#7feaff", "bg-char-1": "#ffaaff", "bg-char-2": "#dff000" },
+  dark: { "bg-char-0": "#0050af", "bg-char-1": "#7f1f7f", "bg-char-2": "#625a00" },
+};
 
 const WAVE_UNDERLINE_ROLES: ReadonlySet<string> = new Set([
   "underline-err",
@@ -50,11 +58,24 @@ function paletteBody(doc: ThemeDoc): string {
   const lines: string[] = [];
   const palette = completePalette(doc);
 
+  const grouped = new Set<string>();
   for (const group of COLOR_GROUPS) {
     const present = group.keys.filter((k): k is ColorKey => palette[k] != null);
     if (present.length === 0) continue;
     lines.push(`;;; ${group.title}`);
-    for (const k of present) lines.push(entry(k, `"${palette[k]!}"`));
+    for (const k of present) {
+      grouped.add(k);
+      lines.push(entry(k, `"${palette[k]!}"`));
+    }
+    lines.push("");
+  }
+
+  // Named colors outside the Modus vocabulary (an upstream theme's own hues,
+  // like jinlor's elysia-pink) still have to be bound: mappings refer to them.
+  const extra = Object.keys(palette).filter((k) => !grouped.has(k) && palette[k as ColorKey]);
+  if (extra.length > 0) {
+    lines.push(";;; Theme-specific colors");
+    for (const k of extra) lines.push(entry(k, `"${palette[k as ColorKey]!}"`));
     lines.push("");
   }
 
@@ -74,6 +95,7 @@ function paletteBody(doc: ThemeDoc): string {
   //      load-theme on X11/cairo builds)
   //   4. else -> `unspecified`
   const coreMappings = getModusCore(doc.meta.mode).mappings;
+  const emitted = new Set<string>();
   for (const group of ROLE_GROUPS) {
     lines.push(`;;; ${group.title}`);
     for (const k of group.keys) {
@@ -81,8 +103,22 @@ function paletteBody(doc: ThemeDoc): string {
       const paletteColor = palette[k as ColorKey];
       const coreFallback = WAVE_UNDERLINE_ROLES.has(k) ? coreMappings[k] : undefined;
       const value = mapped ?? paletteColor ?? coreFallback ?? UNSPECIFIED;
+      emitted.add(k);
       lines.push(entry(k, formatValue(value)));
     }
+    lines.push("");
+  }
+
+  // Mappings keyed by a name our role vocabulary does not list: entries the
+  // engine files as mappings but we classify as colors (bg-term-blue → blue,
+  // rust → red-faint), and an upstream theme's private roles. The face specs
+  // read them by symbol, so leaving any out raises void-variable at load.
+  const extraMappings = Object.entries(doc.mappings).filter(
+    ([k, v]) => !emitted.has(k) && !grouped.has(k) && v != null,
+  );
+  if (extraMappings.length > 0) {
+    lines.push(";;; Other mappings");
+    for (const [k, v] of extraMappings) lines.push(entry(k, formatValue(v!)));
     lines.push("");
   }
 

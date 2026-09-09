@@ -1,0 +1,11 @@
+{
+  "kind": "source",
+  "id": "modern-ayu-light",
+  "source": {
+    "repo": "Artawower/modern-themes",
+    "rev": "86e86e6c607fc2cd3140ddd5812c635c2ac9eef0",
+    "files": ["modern-ayu-light-theme.el"],
+    "theme": "modern-ayu-light"
+  },
+  "install": "(use-package modern-themes :vc (:url \"https://github.com/Artawower/modern-themes\") :config (load-theme 'modern-ayu-light t))"
+}
