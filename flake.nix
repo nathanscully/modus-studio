@@ -46,7 +46,7 @@
           '';
         };
       }
-      // lib.optionalAttrs pkgs.stdenv.isLinux {
+      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
         # Real-Emacs screenshots of every theme (x-export-frames under Xvfb).
         # Linux-only; from the Mac it builds via the linux-builder.
         packages.themeScreenshots = import ./nix/screenshots.nix {
