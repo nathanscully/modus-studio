@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { modusOperandi } from "./modus-operandi.ts";
+import { modusOperandi } from "./loader.ts";
 import { cloneDoc } from "./presets.ts";
 import { applyDiff, decodeFromParam, diffFromBase, encodeToParam } from "./serialize.ts";
 

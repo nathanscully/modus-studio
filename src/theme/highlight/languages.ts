@@ -22,7 +22,7 @@ export interface LanguageDef {
   sample: string;
 }
 
-const ELISP_SAMPLE = `;;; sample.el --- a small Emacs Lisp buffer  -*- lexical-binding: t; -*-
+export const ELISP_SAMPLE = `;;; sample.el --- a small Emacs Lisp buffer  -*- lexical-binding: t; -*-
 
 (require 'cl-lib)
 
@@ -48,9 +48,12 @@ const ELISP_SAMPLE = `;;; sample.el --- a small Emacs Lisp buffer  -*- lexical-b
 ;;; sample.el ends here
 `;
 
-const TS_SAMPLE = `// sample.ts — a small TypeScript buffer
+export const TS_SAMPLE = `// sample.ts — a small TypeScript buffer
 
 import { useState } from "react";
+
+const NAME = "modus-studio";
+const VERSION = "0.1.0";
 
 interface Point {
   x: number;

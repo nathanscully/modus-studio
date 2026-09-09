@@ -1,23 +1,67 @@
 import { describe, expect, it } from "vitest";
 
 import { exportOverrides, exportThemeFile } from "./export-el.ts";
-import { modusOperandi } from "./modus-operandi.ts";
+import { modusOperandi } from "./loader.ts";
 import { cloneDoc } from "./presets.ts";
 
 describe("exportThemeFile", () => {
   const el = exportThemeFile({
     ...modusOperandi,
-    meta: { name: "my-theme", description: "My custom theme.", mode: "light" },
+    meta: {
+      name: "my-theme",
+      description: 'My "custom" theme.',
+      mode: "light",
+      author: "Ada Lovelace",
+      homepage: "https://example.org/my-theme",
+      license: "GPL-3.0-or-later",
+    },
   });
 
-  it("emits the modus-themes-theme call with correct arg order", () => {
-    // The released modus-themes macro is (modus-themes-theme NAME PALETTE OVERRIDES).
+  it("branches on the modus-themes-theme API at load time", () => {
+    expect(el).toContain("(if (macrop 'modus-themes-theme)");
+    expect(el).toContain("(eval-and-compile");
+  });
+
+  it("emits the modus-themes 4 macro form with bare symbols", () => {
+    // Bundled with Emacs 30: (modus-themes-theme NAME PALETTE OVERRIDES).
     expect(el).toMatch(
       /\(modus-themes-theme my-theme\s+my-theme-palette\s+my-theme-palette-overrides\)/,
     );
     expect(el).toContain("(deftheme my-theme");
     expect(el).toContain(":background-mode 'light");
-    expect(el).toContain("(eval-and-compile");
+    expect(el).toContain("(provide-theme 'my-theme)");
+  });
+
+  it("emits the modus-themes 5 function form with quoted symbols", () => {
+    // Bundled with Emacs 31 and on GNU ELPA:
+    // (modus-themes-theme NAME FAMILY DESCRIPTION MODE CORE USER OVERRIDES).
+    expect(el).toMatch(
+      /\(modus-themes-theme\s+'my-theme\s+'my-theme\s+"My \\"custom\\" theme\."\s+'light\s+'my-theme-palette\s+'my-theme-palette-user\s+'my-theme-palette-overrides\)/,
+    );
+    expect(el).toContain("(defcustom my-theme-palette-user nil");
+  });
+
+  it("requires modus-themes from ELPA first, then the bundled copy", () => {
+    expect(el).toMatch(
+      /\(unless \(require 'modus-themes nil t\)\s+\(require-theme 'modus-themes\)\)/,
+    );
+  });
+
+  it("credits the author in the header", () => {
+    expect(el).toContain(";; Author: Ada Lovelace");
+    expect(el).toContain(";; URL: https://example.org/my-theme");
+    expect(el).toContain(";; SPDX-License-Identifier: GPL-3.0-or-later");
+    expect(el).toContain("Made with modus-studio");
+  });
+
+  it("omits credit lines the doc does not have", () => {
+    const bare = exportThemeFile({
+      ...modusOperandi,
+      meta: { name: "bare", description: "Bare.", mode: "light" },
+    });
+    expect(bare).not.toContain(";; Author:");
+    expect(bare).not.toContain(";; URL:");
+    expect(bare).not.toContain("SPDX-License-Identifier");
   });
 
   it("defines a palette defconst with both layers", () => {
@@ -30,10 +74,6 @@ describe("exportThemeFile", () => {
   it("emits hex as quoted strings and color names as bare symbols", () => {
     expect(el).toMatch(/\(bg-main\s+"#ffffff"\)/);
     expect(el).toMatch(/\(keyword\s+magenta-cooler\)/); // symbol, unquoted
-  });
-
-  it("provides the theme", () => {
-    expect(el).toContain("(provide-theme 'my-theme)");
   });
 });
 

@@ -1,0 +1,46 @@
+{
+  "kind": "partial",
+  "id": "solarized-light",
+  "meta": {
+    "name": "solarized-light",
+    "label": "Solarized Light",
+    "description": "Solarized light (Ethan Schoonover) ported to a Modus palette.",
+    "mode": "light",
+    "author": "Ethan Schoonover (roles from bbatsov/solarized-emacs)",
+    "homepage": "https://github.com/altercation/solarized",
+    "license": "GPL-3.0-or-later"
+  },
+  "base": {
+    "bg-main": "#fdf6e3",
+    "fg-main": "#657b83",
+    "red": "#dc322f",
+    "green": "#859900",
+    "yellow": "#b58900",
+    "blue": "#268bd2",
+    "magenta": "#d33682",
+    "cyan": "#2aa198",
+    "yellow-warmer": "#cb4b16",
+    "magenta-cooler": "#6c71c4"
+  },
+  "mappings": {
+    "keyword": "green",
+    "fnname": "blue",
+    "fnname-call": "blue",
+    "variable": "blue",
+    "variable-use": "blue",
+    "string": "cyan",
+    "type": "yellow",
+    "constant": "blue",
+    "builtin": "fg-main",
+    "preprocessor": "blue",
+    "docstring": "cyan",
+    "number": "magenta-cooler",
+    "cursor": "fg-main",
+    "err": "yellow-warmer",
+    "warning": "yellow",
+    "info": "green",
+    "fg-link": "yellow",
+    "comment": "#93a1a1",
+    "bg-region": "#eee8d5"
+  }
+}

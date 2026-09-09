@@ -18,7 +18,7 @@ import { describe, expect, it } from "vitest";
 import efSummerBase from "./__fixtures__/ef-summer-base.json" with { type: "json" };
 import efSummerGenerated from "./__fixtures__/ef-summer-generated.json" with { type: "json" };
 import { generatePalette, isDark } from "./generate-palette.ts";
-import { modusOperandi } from "./modus-operandi.ts";
+import { modusOperandi } from "./loader.ts";
 import type { Palette } from "./types.ts";
 
 const base = efSummerBase as Palette;

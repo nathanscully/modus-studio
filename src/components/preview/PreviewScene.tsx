@@ -21,7 +21,13 @@ interface PreviewSceneProps {
 
 export function PreviewScene({ onInspect }: PreviewSceneProps) {
   return (
-    <div className="space-y-4 border-t px-3 py-3 font-mono text-[13px] leading-relaxed">
+    <div
+      className="space-y-4 border-t px-3 py-3 font-mono text-[13px] leading-relaxed"
+      aria-describedby="preview-scene-hint"
+    >
+      <span id="preview-scene-hint" className="sr-only">
+        Click any element to edit the color that styles it.
+      </span>
       <Section title="Region & line highlight">
         <div style={{ backgroundColor: v("bg-hl-line") }}>
           <K name="bg-hl-line" inspect={onInspect}>
@@ -246,6 +252,7 @@ function K({
     return (
       <button
         type="button"
+        tabIndex={-1}
         data-key={name}
         title={name}
         aria-label={`Edit ${name}`}

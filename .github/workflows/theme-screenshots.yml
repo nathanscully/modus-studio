@@ -1,0 +1,19 @@
+name: Theme screenshots
+
+on:
+  pull_request:
+    paths:
+      - "themes/**"
+
+jobs:
+  screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v16
+      - uses: DeterminateSystems/magic-nix-cache-action@v9
+      - run: nix build .#themeScreenshots -L
+      - uses: actions/upload-artifact@v4
+        with:
+          name: theme-screenshots
+          path: result/*.png

@@ -94,7 +94,7 @@ function ModeLine({
       <span style={{ color: "var(--modus-modeline-info)" }}>{name}</span>
       <span>{label}</span>
       <span className="opacity-70">
-        ({id}) {lineCount}L
+        ({id}) <span className="tabular-nums">{lineCount}</span>L
       </span>
     </>
   );
@@ -199,7 +199,7 @@ function EditableBuffer({
   const gutterWidth = `calc(${digits}ch + 1rem)`;
 
   return (
-    <div className="relative h-full font-mono text-[13px] leading-relaxed">
+    <div className="focus-within:ring-ring/60 relative h-full font-mono text-[13px] leading-relaxed focus-within:ring-2">
       <HighlightLayer layerRef={layerRef} spans={spans} gutterWidth={gutterWidth} />
 
       {/* Editable layer (on top). Transparent text, visible caret. Left-padded by

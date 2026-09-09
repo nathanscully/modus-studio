@@ -1,0 +1,24 @@
+{
+  "kind": "partial",
+  "id": "nord",
+  "meta": {
+    "name": "nord",
+    "label": "Nord",
+    "description": "Nord (arctic, north-bluish) ported to a Modus palette.",
+    "mode": "dark",
+    "author": "Sven Greb / nordtheme",
+    "homepage": "https://www.nordtheme.com",
+    "license": "GPL-3.0-or-later"
+  },
+  "preference": "cool",
+  "base": {
+    "bg-main": "#2e3440",
+    "fg-main": "#d8dee9",
+    "red": "#bf616a",
+    "green": "#a3be8c",
+    "yellow": "#ebcb8b",
+    "blue": "#5e81ac",
+    "magenta": "#b48ead",
+    "cyan": "#88c0d0"
+  }
+}

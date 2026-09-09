@@ -13,12 +13,25 @@ import { PaletteEditor } from "~/components/editor/PaletteEditor.tsx";
 import { CodeBufferPreview } from "~/components/preview/CodeBufferPreview.tsx";
 import type { InspectTarget } from "~/components/preview/inspect.ts";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs.tsx";
+import { cn } from "~/lib/utils.ts";
 import { ThemeStoreProvider } from "~/state/theme-store.tsx";
 import type { ColorKey, RoleKey } from "~/theme/palette-keys.ts";
 
-export function Generator() {
+interface GeneratorProps {
+  /** Base preset id from the /theme/$themeId route. */
+  initialPresetId: string;
+  /** Optional `?t=` shared-edit diff param. */
+  initialParam?: string;
+}
+
+export function Generator({ initialPresetId, initialParam }: GeneratorProps) {
   return (
-    <ThemeStoreProvider>
+    // Remount on theme change so the store re-seeds from the new preset id.
+    <ThemeStoreProvider
+      key={initialPresetId}
+      initialPresetId={initialPresetId}
+      initialParam={initialParam}
+    >
       <GeneratorInner />
     </ThemeStoreProvider>
   );
@@ -28,6 +41,7 @@ function GeneratorInner() {
   const [inspectedRole, setInspectedRole] = useState<RoleKey | null>(null);
   const [inspectedColor, setInspectedColor] = useState<ColorKey | null>(null);
   const [editorTab, setEditorTab] = useState("mappings");
+  const [exportOpen, setExportOpen] = useState(false);
 
   function inspect(target: InspectTarget) {
     if (target.kind === "role") {
@@ -43,14 +57,14 @@ function GeneratorInner() {
   }
 
   return (
-    <div className="bg-background text-foreground flex h-screen flex-col">
+    <div className="bg-background text-foreground flex min-h-screen flex-col md:h-screen">
       <Toolbar />
-      <div className="grid min-h-0 flex-1 grid-cols-[minmax(380px,460px)_1fr]">
+      <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(380px,460px)_1fr]">
         {/* Editor */}
         <Tabs
           value={editorTab}
           onValueChange={setEditorTab}
-          className="flex min-h-0 flex-col border-r"
+          className="order-2 flex min-h-0 flex-col border-t md:order-1 md:border-t-0 md:border-r"
         >
           <TabsList className="m-2">
             <TabsTrigger value="palette">Palette</TabsTrigger>
@@ -65,12 +79,17 @@ function GeneratorInner() {
         </Tabs>
 
         {/* Preview + export */}
-        <div className="grid min-h-0 grid-rows-[1fr_minmax(0,40%)]">
+        <div
+          className={cn(
+            "order-1 grid h-[80vh] min-h-0 md:order-2 md:h-auto",
+            exportOpen ? "grid-rows-[1fr_minmax(0,45%)]" : "grid-rows-[1fr_auto]",
+          )}
+        >
           <div className="min-h-0 overflow-hidden p-3">
             <CodeBufferPreview onInspect={inspect} />
           </div>
           <div className="min-h-0 border-t">
-            <ExportPanel />
+            <ExportPanel open={exportOpen} onOpenChange={setExportOpen} />
           </div>
         </div>
       </div>

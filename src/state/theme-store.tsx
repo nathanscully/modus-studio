@@ -1,9 +1,12 @@
 // The editing state container for the theme generator.
 //
 // Holds the working ThemeDoc, the active base preset id, and the selected sample
-// language. Hydrates from URL (?t=) then localStorage then the default preset, and
-// debounce-persists every edit back to both the URL and localStorage.
+// language. The route owns seeding now: it passes the `$themeId` preset and an
+// optional `?t=` diff param. A `?t=` param wins; otherwise the doc is a fresh
+// clone of that preset. The per-theme URL is the source of truth: every edit is
+// debounce-persisted to the URL so refresh/share round-trips.
 
+import { toast } from "sonner";
 import {
   createContext,
   use,
@@ -17,7 +20,7 @@ import {
 
 import type { ColorKey, RoleKey } from "../theme/palette-keys.ts";
 import { cloneDoc, DEFAULT_PRESET_ID, getPreset } from "../theme/presets.ts";
-import { decodeFromParam, encodeToParam, loadLocal, saveLocal } from "../theme/serialize.ts";
+import { decodeFromParam, encodeToParam } from "../theme/serialize.ts";
 import type { MappingValue, ThemeDoc } from "../theme/types.ts";
 
 export type LanguageId = "elisp" | "typescript";
@@ -26,6 +29,8 @@ interface State {
   doc: ThemeDoc;
   baseId: string;
   language: LanguageId;
+  /** Set when a `?t=` param was present but did not decode for this base. */
+  rejectedParam: boolean;
 }
 
 type Action =
@@ -34,7 +39,8 @@ type Action =
   | { type: "setMeta"; patch: Partial<ThemeDoc["meta"]> }
   | { type: "loadPreset"; presetId: string }
   | { type: "setLanguage"; language: LanguageId }
-  | { type: "reset" };
+  | { type: "reset" }
+  | { type: "restore"; doc: ThemeDoc };
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
@@ -64,25 +70,28 @@ function reducer(state: State, action: Action): State {
       const preset = getPreset(state.baseId) ?? getPreset(DEFAULT_PRESET_ID)!;
       return { ...state, doc: cloneDoc(preset.doc) };
     }
+    case "restore":
+      return { ...state, doc: cloneDoc(action.doc) };
     default:
       return state;
   }
 }
 
-function initState(): State {
-  const fromUrl = readUrlParam();
-  const loaded = fromUrl ?? loadLocal();
-  if (loaded) {
-    return { doc: loaded.doc, baseId: loaded.baseId, language: "elisp" };
+function initState(presetId: string, param: string | undefined): State {
+  // A shared-edit param wins, provided it decodes to the same base we're seeding.
+  if (param) {
+    const fromUrl = decodeFromParam(param);
+    if (fromUrl && fromUrl.baseId === presetId) {
+      return { doc: fromUrl.doc, baseId: fromUrl.baseId, language: "elisp", rejectedParam: false };
+    }
   }
-  const preset = getPreset(DEFAULT_PRESET_ID)!;
-  return { doc: cloneDoc(preset.doc), baseId: preset.id, language: "elisp" };
-}
-
-function readUrlParam(): { doc: ThemeDoc; baseId: string } | null {
-  if (typeof window === "undefined") return null;
-  const param = new URLSearchParams(window.location.search).get("t");
-  return param ? decodeFromParam(param) : null;
+  const preset = getPreset(presetId) ?? getPreset(DEFAULT_PRESET_ID)!;
+  return {
+    doc: cloneDoc(preset.doc),
+    baseId: preset.id,
+    language: "elisp",
+    rejectedParam: param != null,
+  };
 }
 
 interface StoreApi {
@@ -95,21 +104,47 @@ interface StoreApi {
   loadPreset: (presetId: string) => void;
   setLanguage: (language: LanguageId) => void;
   reset: () => void;
+  /** Replace the working doc wholesale (used to undo a reset). */
+  restore: (doc: ThemeDoc) => void;
   /** A shareable URL encoding the current theme. */
   shareUrl: () => string;
 }
 
 const ThemeStoreContext = createContext<StoreApi | null>(null);
 
-export function ThemeStoreProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, initState);
+interface ThemeStoreProviderProps {
+  children: ReactNode;
+  /** Base preset id to seed from (the /theme/$themeId route param). */
+  initialPresetId: string;
+  /** Optional `?t=` diff param; wins over the plain seed when it matches. */
+  initialParam?: string;
+}
+
+export function ThemeStoreProvider({
+  children,
+  initialPresetId,
+  initialParam,
+}: ThemeStoreProviderProps) {
+  const [state, dispatch] = useReducer(reducer, undefined, () =>
+    initState(initialPresetId, initialParam),
+  );
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Debounced persistence to localStorage + URL on every change.
+  // A shared link whose `?t=` param did not decode for this base falls back to
+  // the plain preset; say so once instead of silently dropping the edits.
+  useEffect(() => {
+    if (!state.rejectedParam) return;
+    toast.warning("Could not load the shared edits", {
+      description: "The link's theme data did not match this theme, so it opened unedited.",
+    });
+  }, [state.rejectedParam]);
+
+  // Debounced persistence of every edit into the URL's `?t=` diff param, so a
+  // refresh or copied link round-trips the working theme. The per-theme URL is
+  // the single source of truth.
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => {
-      saveLocal(state.doc, state.baseId);
       const param = encodeToParam(state.doc, state.baseId);
       const url = new URL(window.location.href);
       url.searchParams.set("t", param);
@@ -133,6 +168,7 @@ export function ThemeStoreProvider({ children }: { children: ReactNode }) {
       loadPreset: (presetId: string) => dispatch({ type: "loadPreset", presetId }),
       setLanguage: (language: LanguageId) => dispatch({ type: "setLanguage", language }),
       reset: () => dispatch({ type: "reset" }),
+      restore: (doc: ThemeDoc) => dispatch({ type: "restore", doc }),
     }),
     [],
   );

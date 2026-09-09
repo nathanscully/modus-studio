@@ -14,12 +14,14 @@
 
 import { describe, expect, it } from "vitest";
 
-import { generatePalette } from "../generate-palette.ts";
-import { modusOperandi } from "../modus-operandi.ts";
-import { modusVivendi } from "../modus-vivendi.ts";
+import { modusOperandi, modusVivendi } from "../loader.ts";
 import { resolveValue } from "../resolve.ts";
-import type { BaseScheme, ThemeDoc } from "../types.ts";
-import { solarizedDark, solarizedLight } from "./solarized.ts";
+import { registerModusCores, toThemeDoc, type PartialThemeFile } from "../theme-file.ts";
+import type { ThemeDoc } from "../types.ts";
+import solarizedDark from "../../../themes/classic/solarized-dark.json" with { type: "json" };
+import solarizedLight from "../../../themes/classic/solarized-light.json" with { type: "json" };
+
+registerModusCores(modusOperandi, modusVivendi);
 
 // --- CIEDE2000 ΔE (hex → CIELab → ΔE00) ---
 function hexToRgb(h: string): [number, number, number] {
@@ -77,19 +79,8 @@ function deltaE(h1: string, h2: string): number {
   );
 }
 
-function expand(scheme: BaseScheme): ThemeDoc {
-  const core = scheme.mode === "dark" ? modusVivendi : modusOperandi;
-  const { palette, mappings } = generatePalette(scheme.base, {
-    corePalette: core.palette,
-    coreMappings: core.mappings,
-    mappings: scheme.mappings,
-    preference: scheme.preference,
-  });
-  return {
-    meta: { name: scheme.id, description: scheme.description, mode: scheme.mode },
-    palette,
-    mappings,
-  };
+function expand(scheme: PartialThemeFile): ThemeDoc {
+  return toThemeDoc(scheme);
 }
 
 // The canonical Solarized 16 (solarized-palettes.el); accents shared across modes.
@@ -116,47 +107,50 @@ const SOL = {
 // verbatim ports, allowing only floating-point slack.
 const EXACT = 1.0;
 
-describe.each([solarizedDark, solarizedLight])("Solarized port fidelity — $id", (scheme) => {
-  const doc = expand(scheme);
-  const light = scheme.mode === "light";
-  // Light flips the monotone ramp (bg/fg); accents are identical.
-  const bg = light ? SOL.base3 : SOL.base03;
-  const fg = light ? SOL.base00 : SOL.base0;
+describe.each([solarizedDark, solarizedLight] as unknown as PartialThemeFile[])(
+  "Solarized port fidelity — $id",
+  (scheme) => {
+    const doc = expand(scheme);
+    const light = scheme.meta.mode === "light";
+    // Light flips the monotone ramp (bg/fg); accents are identical.
+    const bg = light ? SOL.base3 : SOL.base03;
+    const fg = light ? SOL.base00 : SOL.base0;
 
-  it.each([
-    ["bg-main", bg],
-    ["fg-main", fg],
-    ["red", SOL.red],
-    ["green", SOL.green],
-    ["yellow", SOL.yellow],
-    ["blue", SOL.blue],
-    ["magenta", SOL.magenta],
-    ["cyan", SOL.cyan],
-  ])("palette %s equals canonical Solarized (ΔE≈0)", (key, ref) => {
-    const ours = doc.palette[key as keyof typeof doc.palette] as string;
-    expect(deltaE(ours, ref), `${key}: ${ours} vs ${ref}`).toBeLessThan(EXACT);
-  });
+    it.each([
+      ["bg-main", bg],
+      ["fg-main", fg],
+      ["red", SOL.red],
+      ["green", SOL.green],
+      ["yellow", SOL.yellow],
+      ["blue", SOL.blue],
+      ["magenta", SOL.magenta],
+      ["cyan", SOL.cyan],
+    ])("palette %s equals canonical Solarized (ΔE≈0)", (key, ref) => {
+      const ours = doc.palette[key as keyof typeof doc.palette] as string;
+      expect(deltaE(ours, ref), `${key}: ${ours} vs ${ref}`).toBeLessThan(EXACT);
+    });
 
-  // solarized-emacs face → color (solarized-faces.el). base01 differs by mode.
-  const base01 = light ? SOL.base1 : SOL.base01;
-  it.each([
-    ["keyword", SOL.green],
-    ["string", SOL.cyan],
-    ["fnname", SOL.blue],
-    ["variable", SOL.blue],
-    ["type", SOL.yellow],
-    ["constant", SOL.blue],
-    ["builtin", fg],
-    ["preprocessor", SOL.blue],
-    ["docstring", SOL.cyan],
-    ["comment", base01],
-    ["cursor", fg],
-    ["err", SOL.orange],
-    ["warning", SOL.yellow],
-    ["info", SOL.green],
-  ])("role %s matches solarized-emacs (ΔE≈0)", (role, ref) => {
-    const ours = resolveValue(doc, doc.mappings[role as keyof typeof doc.mappings] ?? role);
-    expect(ours, `role ${role} unresolved`).not.toBeNull();
-    expect(deltaE(ours as string, ref), `${role}: ${ours} vs ${ref}`).toBeLessThan(EXACT);
-  });
-});
+    // solarized-emacs face → color (solarized-faces.el). base01 differs by mode.
+    const base01 = light ? SOL.base1 : SOL.base01;
+    it.each([
+      ["keyword", SOL.green],
+      ["string", SOL.cyan],
+      ["fnname", SOL.blue],
+      ["variable", SOL.blue],
+      ["type", SOL.yellow],
+      ["constant", SOL.blue],
+      ["builtin", fg],
+      ["preprocessor", SOL.blue],
+      ["docstring", SOL.cyan],
+      ["comment", base01],
+      ["cursor", fg],
+      ["err", SOL.orange],
+      ["warning", SOL.yellow],
+      ["info", SOL.green],
+    ])("role %s matches solarized-emacs (ΔE≈0)", (role, ref) => {
+      const ours = resolveValue(doc, doc.mappings[role as keyof typeof doc.mappings] ?? role);
+      expect(ours, `role ${role} unresolved`).not.toBeNull();
+      expect(deltaE(ours as string, ref), `${role}: ${ours} vs ${ref}`).toBeLessThan(EXACT);
+    });
+  },
+);

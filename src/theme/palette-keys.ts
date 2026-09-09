@@ -6,8 +6,8 @@
 //   - the order the editor renders sections/rows, and
 //   - the stable, diff-friendly order the .el exporter emits.
 //
-// Transcribed from modus-themes.el (upstream). Hex values live in the per-theme
-// seed files (modus-operandi.ts / modus-vivendi.ts); this file only names keys.
+// Transcribed from modus-themes.el (upstream). Hex values live in the theme
+// files under themes/; this file only names keys.
 
 export interface KeyGroup<K extends string> {
   /** Section title shown in the editor and as a comment in exported elisp. */

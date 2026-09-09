@@ -1,32 +1,28 @@
-// Each classic-scheme BASE-COLORS set, when run through generatePalette with the
-// matching Modus core, must yield a COMPLETE, resolvable Modus theme: bg/fg
+// Each classic-scheme partial theme file (themes/classic/*.json), when expanded
+// through generatePalette, must yield a COMPLETE, resolvable Modus theme: bg/fg
 // preserved, the full color set present, and every syntax role resolving to a
 // scheme-flavored hex (not null, not a leftover Modus color).
+//
+// This exercises the SHIPPED JSON partials, not the old TS BaseScheme seeds, so
+// the completeness guarantee is enforced on the files we actually load.
 
 import { describe, expect, it } from "vitest";
 
-import { generatePalette, isDark } from "../generate-palette.ts";
-import { modusOperandi } from "../modus-operandi.ts";
-import { modusVivendi } from "../modus-vivendi.ts";
+import { isDark } from "../generate-palette.ts";
+import { modusOperandi, modusVivendi } from "../loader.ts";
 import { resolveValue } from "../resolve.ts";
-import type { BaseScheme, ThemeDoc } from "../types.ts";
-import { nord } from "./nord.ts";
-import { solarizedDark, solarizedLight } from "./solarized.ts";
+import { registerModusCores, toThemeDoc, type PartialThemeFile } from "../theme-file.ts";
+import type { ThemeDoc } from "../types.ts";
+import nord from "../../../themes/classic/nord.json" with { type: "json" };
+import solarizedDark from "../../../themes/classic/solarized-dark.json" with { type: "json" };
+import solarizedLight from "../../../themes/classic/solarized-light.json" with { type: "json" };
 
-const SCHEMES: BaseScheme[] = [solarizedDark, solarizedLight, nord];
+registerModusCores(modusOperandi, modusVivendi);
 
-function expand(scheme: BaseScheme): ThemeDoc {
-  const core = scheme.mode === "dark" ? modusVivendi : modusOperandi;
-  const { palette, mappings } = generatePalette(scheme.base, {
-    corePalette: core.palette,
-    coreMappings: core.mappings,
-    preference: scheme.preference,
-  });
-  return {
-    meta: { name: scheme.id, description: scheme.description, mode: scheme.mode },
-    palette,
-    mappings,
-  };
+const SCHEMES = [solarizedDark, solarizedLight, nord] as unknown as PartialThemeFile[];
+
+function expand(scheme: PartialThemeFile): ThemeDoc {
+  return toThemeDoc(scheme);
 }
 
 describe.each(SCHEMES)("scheme $id expands to a complete Modus theme", (scheme) => {
@@ -39,7 +35,7 @@ describe.each(SCHEMES)("scheme $id expands to a complete Modus theme", (scheme) 
   });
 
   it("classifies the background mode consistently", () => {
-    expect(isDark(doc.palette["bg-main"] as string)).toBe(scheme.mode === "dark");
+    expect(isDark(doc.palette["bg-main"] as string)).toBe(scheme.meta.mode === "dark");
   });
 
   it("has no holes in the standard color set", () => {

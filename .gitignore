@@ -27,3 +27,8 @@ result-*
 # Claude Code local settings
 .claude/
 .playwright-mcp/
+/.agent-shell/
+
+# Local working notes
+scratch/
+.cache/

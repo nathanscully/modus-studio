@@ -1,13 +1,13 @@
 // Emit Emacs Lisp from a ThemeDoc:
 //   - exportThemeFile: a self-contained derivative theme file built on modus-themes,
-//     following the modus-*-theme.el skeleton (defconst palette + modus-themes-theme).
+//     loadable under both modus-themes APIs (see exportThemeFile).
 //   - exportOverrides: a (setq <base>-palette-overrides '(...)) snippet containing
 //     only the entries that differ from the chosen base preset.
 
-import { modusOperandi } from "./modus-operandi.ts";
-import { modusVivendi } from "./modus-vivendi.ts";
+import { REPO_URL } from "../lib/site.ts";
 import { COLOR_GROUPS, ROLE_GROUPS, type ColorKey } from "./palette-keys.ts";
 import { isHex, UNSPECIFIED } from "./resolve.ts";
+import { getModusCore } from "./theme-file.ts";
 import type { MappingValue, Palette, ThemeDoc } from "./types.ts";
 
 /**
@@ -18,9 +18,15 @@ import type { MappingValue, Palette, ThemeDoc } from "./types.ts";
  * matching Modus base so every exported theme is self-contained and loadable.
  */
 function completePalette(doc: ThemeDoc): Palette {
-  const base = doc.meta.mode === "dark" ? modusVivendi.palette : modusOperandi.palette;
+  const base = getModusCore(doc.meta.mode).palette;
   return { ...base, ...doc.palette };
 }
+
+const WAVE_UNDERLINE_ROLES: ReadonlySet<string> = new Set([
+  "underline-err",
+  "underline-warning",
+  "underline-note",
+]);
 
 /**
  * A mapping value is emitted as a bare elisp SYMBOL unless it is a literal hex
@@ -61,13 +67,20 @@ function paletteBody(doc: ThemeDoc): string {
   //   2. else, if the doc's PALETTE defines this name as a color (some themes,
   //      e.g. the ef-themes, define `cursor` as a named color) -> emit that hex,
   //      so the symbol is still bound
-  //   3. else -> `unspecified`
+  //   3. else, for the wave-underline roles -> the modus core's mapping (the
+  //      engine puts these inside `(:underline (:style wave :color VALUE))`,
+  //      and graphical frames reject `unspecified` as a color there — upstream
+  //      ef themes omit them, so without this backfill the export fails
+  //      load-theme on X11/cairo builds)
+  //   4. else -> `unspecified`
+  const coreMappings = getModusCore(doc.meta.mode).mappings;
   for (const group of ROLE_GROUPS) {
     lines.push(`;;; ${group.title}`);
     for (const k of group.keys) {
       const mapped = doc.mappings[k];
       const paletteColor = palette[k as ColorKey];
-      const value = mapped ?? paletteColor ?? UNSPECIFIED;
+      const coreFallback = WAVE_UNDERLINE_ROLES.has(k) ? coreMappings[k] : undefined;
+      const value = mapped ?? paletteColor ?? coreFallback ?? UNSPECIFIED;
       lines.push(entry(k, formatValue(value)));
     }
     lines.push("");
@@ -76,15 +89,43 @@ function paletteBody(doc: ThemeDoc): string {
   return lines.join("\n").trimEnd();
 }
 
+/** Escape a string for an elisp string literal. */
+function elispString(s: string): string {
+  return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+
+/** The `;; Key: value` credit lines for the file header, from the doc's provenance. */
+function creditHeader(doc: ThemeDoc): string {
+  const { author, homepage, license } = doc.meta;
+  const lines: string[] = [];
+  if (author) lines.push(`;; Author: ${author}`);
+  if (homepage) lines.push(`;; URL: ${homepage}`);
+  if (license) lines.push(`;; SPDX-License-Identifier: ${license}`);
+  return lines.length > 0 ? `${lines.join("\n")}\n\n` : "";
+}
+
+/**
+ * Emit a theme file that loads under both modus-themes APIs:
+ *
+ *   - modus-themes 4 (bundled with Emacs 30): `modus-themes-theme` is a 3-argument
+ *     MACRO taking bare symbols — (NAME PALETTE OVERRIDES) — and the theme file
+ *     declares the theme itself with `deftheme` and `provide-theme`.
+ *   - modus-themes 5 (bundled with Emacs 31, and on GNU ELPA): `modus-themes-theme`
+ *     is a 7-argument FUNCTION taking quoted symbols — (NAME FAMILY DESCRIPTION
+ *     BACKGROUND-MODE CORE-PALETTE USER-PALETTE OVERRIDES-PALETTE) — that declares,
+ *     registers and provides the theme on its own. The full palette is passed as
+ *     the core palette, the way the ef-themes do it, plus an empty
+ *     `NAME-palette-user` defcustom mirroring the bundled Modus theme files.
+ *
+ * `(macrop 'modus-themes-theme)` picks the branch at load time. The whole body
+ * sits inside `eval-and-compile` so that, under the macro API, the palette
+ * `defconst` is evaluated before the macro expands (it reads the palette's value
+ * at expansion time).
+ */
 export function exportThemeFile(doc: ThemeDoc): string {
   const { name, description, mode } = doc.meta;
-  const safeDesc = description.replace(/"/g, '\\"');
+  const desc = elispString(description);
 
-  // Mirrors the structure of a real bundled modus-*-theme.el: everything is
-  // wrapped in one `eval-and-compile` form containing the require guard, the
-  // `deftheme` declaration, the palette `defconst`, the overrides `defcustom`,
-  // and the 3-argument `modus-themes-theme` call (NAME PALETTE OVERRIDES, with
-  // UNQUOTED symbols) followed by `provide-theme`. `provide` sits outside.
   const palette = paletteBody(doc)
     .split("\n")
     .map((l) => (l ? `    ${l}` : l))
@@ -92,26 +133,15 @@ export function exportThemeFile(doc: ThemeDoc): string {
 
   return `;;; ${name}-theme.el --- ${description} -*- lexical-binding:t -*-
 
-;; Generated by the Modus Theme Generator. Built on top of the modus-themes.
-;; Requires the \`modus-themes' package (bundled with Emacs >= 30, or installable
-;; from GNU ELPA) to be available.
+${creditHeader(doc)};; Made with modus-studio (${REPO_URL}), built on top of the
+;; modus-themes by Protesilaos Stavrou. Requires the \`modus-themes' package:
+;; the copy bundled with Emacs >= 30, or the one on GNU ELPA.
 
 ;;; Code:
 
 (eval-and-compile
-  (unless (and (fboundp 'require-theme)
-               load-file-name
-               (equal (file-name-directory load-file-name)
-                      (expand-file-name "themes/" data-directory))
-               (require-theme 'modus-themes t))
-    (require 'modus-themes))
-
-;;;###theme-autoload
-  (deftheme ${name}
-    "${safeDesc}"
-    :background-mode '${mode}
-    :kind 'color-scheme
-    :family 'modus)
+  (unless (require 'modus-themes nil t)
+    (require-theme 'modus-themes))
 
   (defconst ${name}-palette
     '(
@@ -126,6 +156,15 @@ Semantic color mappings have the form (MAPPING-NAME COLOR-NAME)
 with both as symbols.  The latter is a named color that already
 exists in the palette and is associated with a HEX-VALUE.")
 
+  (defcustom ${name}-palette-user nil
+    "Like the \`${name}-palette' for user-defined entries.
+This is meant to extend the palette with custom named colors and/or
+semantic palette mappings.  Those may then be used in combination with
+palette overrides (also see \`modus-themes-common-palette-overrides' and
+\`${name}-palette-overrides')."
+    :group 'modus-themes
+    :type '(repeat (list symbol (choice symbol string))))
+
   (defcustom ${name}-palette-overrides nil
     "Overrides for \`${name}-palette'.
 
@@ -133,15 +172,31 @@ Mirror the elements of the aforementioned palette, overriding
 their value.  Theme-specific overrides take precedence over the
 shared \`modus-themes-common-palette-overrides'."
     :group 'modus-themes
-    :type '(repeat (list symbol (choice symbol string)))
-    :set #'modus-themes--set-option
-    :initialize #'custom-initialize-default)
+    :type '(repeat (list symbol (choice symbol string))))
 
-  (modus-themes-theme ${name}
-                      ${name}-palette
-                      ${name}-palette-overrides)
-
-  (provide-theme '${name}))
+  (if (macrop 'modus-themes-theme)
+      ;; modus-themes 4 (Emacs 30): a macro over bare symbols; the theme file
+      ;; declares and provides the theme itself.
+      (progn
+        (deftheme ${name}
+          ${desc}
+          :background-mode '${mode}
+          :kind 'color-scheme
+          :family '${name})
+        (modus-themes-theme ${name}
+                            ${name}-palette
+                            ${name}-palette-overrides)
+        (provide-theme '${name}))
+    ;; modus-themes 5 (Emacs 31, GNU ELPA): a function over quoted symbols that
+    ;; declares, registers and provides the theme on its own.
+    (modus-themes-theme
+     '${name}
+     '${name}
+     ${desc}
+     '${mode}
+     '${name}-palette
+     '${name}-palette-user
+     '${name}-palette-overrides)))
 
 ;;; ${name}-theme.el ends here
 `;

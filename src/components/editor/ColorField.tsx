@@ -2,6 +2,10 @@
 // either opens a rich color picker (diceui / radix) pre-populated with the
 // current color. Clicking the hex text opens the picker with its hex input
 // focused, so a paste immediately overwrites the value.
+//
+// A color the theme never defines shows as "not set" over a hatched swatch. The
+// picker still opens (from a neutral grey) but writes nothing until the user
+// actually picks a color.
 
 import { memo, useId, useRef } from "react";
 
@@ -30,10 +34,20 @@ interface ColorFieldProps {
   onChange: (key: ColorKey, hex: string) => void;
 }
 
+// Upstream themes (e.g. ef-summer) leave many palette names undefined. Such a
+// row renders as "not set" with a hatched swatch, and opening the picker starts
+// from this neutral grey WITHOUT writing it to the store — only a user edit does.
+const UNSET_PICKER_HEX = "#808080";
+
+// Diagonal hatch marking a swatch as unset, so it reads differently from a real
+// colour (a plain black square used to be indistinguishable from #000000).
+const UNSET_HATCH =
+  "repeating-linear-gradient(45deg, var(--muted) 0 4px, var(--background) 4px 8px)";
+
 /** Normalize a stored value to a 7-char hex the picker can parse, or a default. */
 function toPickerHex(value: string | undefined): string {
   if (value && isHex(value)) return value.slice(0, 7); // drop any alpha
-  return "#000000";
+  return UNSET_PICKER_HEX;
 }
 
 // PERF: memoized so a doc change re-renders only the row whose value/highlight
@@ -51,6 +65,7 @@ export const ColorField = memo(function ColorField({
   const focusInputOnOpen = useRef(false);
 
   const hex = toPickerHex(value);
+  const unset = value == null || value === "";
   const valid = value == null || isHex(value);
 
   // The picker emits the value in whatever format is selected (hex / rgb(...) /
@@ -108,11 +123,19 @@ export const ColorField = memo(function ColorField({
           <ColorPickerTrigger asChild>
             <button
               type="button"
-              title={`Pick ${colorKey} color`}
-              aria-label={`Pick ${colorKey} color`}
+              title={unset ? `${colorKey} is not set` : `Pick ${colorKey} color`}
+              aria-label={unset ? `Set ${colorKey} color (not set)` : `Pick ${colorKey} color`}
               className="h-full w-7 shrink-0 cursor-pointer border-r hover:opacity-80"
             >
-              <ColorPickerSwatch className="h-full w-full rounded-none border-0" />
+              {unset ? (
+                <span
+                  aria-hidden="true"
+                  className="block h-full w-full"
+                  style={{ background: UNSET_HATCH }}
+                />
+              ) : (
+                <ColorPickerSwatch className="h-full w-full rounded-none border-0" />
+              )}
             </button>
           </ColorPickerTrigger>
 
@@ -125,11 +148,14 @@ export const ColorField = memo(function ColorField({
               onClick={() => {
                 focusInputOnOpen.current = true;
               }}
-              title={`Edit ${colorKey} hex`}
-              aria-label={`Edit ${colorKey} hex`}
-              className="h-full w-full min-w-0 cursor-text px-2 text-left font-mono text-xs"
+              title={unset ? `${colorKey} is not set` : `Edit ${colorKey} hex`}
+              aria-label={unset ? `Set ${colorKey} hex (not set)` : `Edit ${colorKey} hex`}
+              className={cn(
+                "h-full w-full min-w-0 cursor-text px-2 text-left font-mono text-xs",
+                unset && "text-muted-foreground italic",
+              )}
             >
-              {value ?? ""}
+              {unset ? "not set" : value}
             </button>
           </ColorPickerTrigger>
         </div>

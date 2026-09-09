@@ -1,0 +1,22 @@
+{
+  "kind": "partial",
+  "id": "standard-station",
+  "meta": {
+    "name": "standard-station",
+    "label": "Standard Station",
+    "description": "Deep navy ground, cream text, and a red-orange accent, after Ed Ruscha's Standard Station (1966).",
+    "mode": "dark",
+    "author": "Nathan Scully",
+    "license": "GPL-3.0-or-later",
+    "tags": ["dark", "ruscha"]
+  },
+  "base": {
+    "bg-main": "#101c48",
+    "fg-main": "#f7ead6",
+    "fg-dim": "#a7abc9",
+    "red": "#e03a26"
+  },
+  "mappings": {
+    "keyword": "red"
+  }
+}

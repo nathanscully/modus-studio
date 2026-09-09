@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { modusOperandi } from "./modus-operandi.ts";
+import { modusOperandi } from "./loader.ts";
 import { isHex, resolveAll, resolveRole, resolveValue, UNSPECIFIED } from "./resolve.ts";
 import type { ThemeDoc } from "./types.ts";
 

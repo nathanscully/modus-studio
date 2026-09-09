@@ -362,5 +362,13 @@ export function generatePalette(baseColors: Palette, options: GenerateOptions): 
     ...baseMappings,
   } as Mapping;
 
+  // seq-uniq is first-wins across the WHOLE combined alist and colors precede
+  // mappings, so a base or derived NAMED COLOR shadows every mapping for that
+  // key (e.g. a theme that sets `fringe` as a color must not inherit the
+  // core's fringe→bg-dim mapping). Core colors come last and shadow nothing.
+  for (const key of Object.keys({ ...derivedColors, ...baseColors })) {
+    delete (mappings as Record<string, MappingValue>)[key];
+  }
+
   return { palette, mappings };
 }

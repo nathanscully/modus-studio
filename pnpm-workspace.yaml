@@ -7,6 +7,14 @@ packages: []
 # delay blunts "install a freshly-published malicious version" attacks.
 minimumReleaseAge: 10080 # minutes = 7 days
 
-# Reject silent downgrades: pnpm will refuse to replace an installed version
-# with an older one unless explicitly intended, preventing downgrade attacks.
+# Refuse a version whose trust evidence is weaker than that of an
+# earlier-published version of the same package. Comparison is by publish date,
+# not semver, so a takeover cannot launder itself through any version number.
 trustPolicy: no-downgrade
+
+# Chronological comparison misreads maintenance releases on an old major line.
+# semver 7.5.4 (2023-07-07) shipped provenance; 6.3.1 (2023-07-10) is a 6.x
+# backport published after it with none, so it reads as a downgrade. Pulled in
+# by @babel/core; no advisories against it.
+trustPolicyExclude:
+  - semver@6.3.1

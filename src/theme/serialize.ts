@@ -1,4 +1,4 @@
-// Persist the working theme as a compact, shareable string and to localStorage.
+// Persist the working theme as a compact, shareable URL string.
 //
 // To keep URLs short we store only the DIFF against the chosen base preset:
 //   { base: <presetId>, meta?: {...}, palette?: {diffed keys}, mappings?: {diffed keys} }
@@ -7,8 +7,6 @@
 import { cloneDoc, DEFAULT_PRESET_ID, getPreset } from "./presets.ts";
 import type { ColorKey, RoleKey } from "./palette-keys.ts";
 import type { ThemeDoc } from "./types.ts";
-
-const STORAGE_KEY = "modus-theme-generator:doc";
 
 interface ThemeDiff {
   base: string;
@@ -76,28 +74,6 @@ export function encodeToParam(doc: ThemeDoc, baseId: string): string {
 export function decodeFromParam(param: string): { doc: ThemeDoc; baseId: string } | null {
   try {
     const diff = JSON.parse(fromBase64Url(param)) as ThemeDiff;
-    if (!diff || typeof diff.base !== "string") return null;
-    return { doc: applyDiff(diff), baseId: diff.base };
-  } catch {
-    return null;
-  }
-}
-
-// --- localStorage ----------------------------------------------------------
-
-export function saveLocal(doc: ThemeDoc, baseId: string): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(diffFromBase(doc, baseId)));
-  } catch {
-    // storage may be unavailable (private mode / quota) — ignore.
-  }
-}
-
-export function loadLocal(): { doc: ThemeDoc; baseId: string } | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const diff = JSON.parse(raw) as ThemeDiff;
     if (!diff || typeof diff.base !== "string") return null;
     return { doc: applyDiff(diff), baseId: diff.base };
   } catch {

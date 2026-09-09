@@ -416,6 +416,13 @@ interface Store {
   getState: () => StoreState;
   setColor: (value: ColorValue) => void;
   setHsv: (value: HSVColorValue) => void;
+  /**
+   * Sync store state from the controlled `value` prop WITHOUT emitting
+   * `onValueChange`. Emitting here would round-trip every mounted picker's
+   * color through rgb->hsv->rgb and dispatch a rounded (+/-1 per channel)
+   * change back to the owner on mount.
+   */
+  syncFromValue: (color: ColorValue, hsv: HSVColorValue) => void;
   setOpen: (value: boolean) => void;
   setFormat: (value: ColorFormat) => void;
   notify: () => void;
@@ -514,7 +521,23 @@ function ColorPicker(props: ColorPickerProps) {
     onFormatChange,
   });
 
+  // The last string handed to `onValueChange`, plus whatever the `value` prop
+  // last pushed in. A change is emitted only when it differs, so a user drag
+  // never echoes the owner's own value straight back at it.
+  const lastEmittedRef = React.useRef<string | null>(null);
+
   const store = React.useMemo<Store>(() => {
+    const emit = (value: ColorValue, format: ColorFormat) => {
+      const onValueChange = propsRef.current.onValueChange;
+      if (!onValueChange) return;
+
+      const colorString = colorToString(value, format);
+      if (colorString === lastEmittedRef.current) return;
+
+      lastEmittedRef.current = colorString;
+      onValueChange(colorString);
+    };
+
     return {
       subscribe: (cb) => {
         listenersRef.current.add(cb);
@@ -527,10 +550,7 @@ function ColorPicker(props: ColorPickerProps) {
         const prevState = { ...stateRef.current };
         stateRef.current.color = value;
 
-        if (propsRef.current.onValueChange) {
-          const colorString = colorToString(value, prevState.format);
-          propsRef.current.onValueChange(colorString);
-        }
+        emit(value, prevState.format);
 
         store.notify();
       },
@@ -540,12 +560,27 @@ function ColorPicker(props: ColorPickerProps) {
         const prevState = { ...stateRef.current };
         stateRef.current.hsv = value;
 
-        if (propsRef.current.onValueChange) {
-          const colorValue = hsvToRgb(value);
-          const colorString = colorToString(colorValue, prevState.format);
-          propsRef.current.onValueChange(colorString);
+        emit(hsvToRgb(value), prevState.format);
+
+        store.notify();
+      },
+      syncFromValue: (color: ColorValue, hsv: HSVColorValue) => {
+        const current = stateRef.current.color;
+        // Stamp the echo guard even when nothing changed, so a later drag back
+        // to this exact color is recognized as a no-op rather than re-emitted.
+        lastEmittedRef.current = colorToString(color, stateRef.current.format);
+
+        if (
+          color.r === current.r &&
+          color.g === current.g &&
+          color.b === current.b &&
+          color.a === current.a
+        ) {
+          return;
         }
 
+        stateRef.current.color = color;
+        stateRef.current.hsv = hsv;
         store.notify();
       },
       setOpen: (value: boolean) => {
@@ -627,11 +662,8 @@ function ColorPickerImpl(props: ColorPickerImplProps) {
 
   useIsomorphicLayoutEffect(() => {
     if (valueProp !== undefined) {
-      const currentState = store.getState();
-      const color = hexToRgb(valueProp, currentState.color.a);
-      const hsv = rgbToHsv(color);
-      store.setColor(color);
-      store.setHsv(hsv);
+      const color = hexToRgb(valueProp, store.getState().color.a);
+      store.syncFromValue(color, rgbToHsv(color));
     }
   }, [valueProp]);
 
@@ -749,6 +781,7 @@ function ColorPickerArea(props: DivProps) {
     onPointerDown: onPointerDownProp,
     onPointerMove: onPointerMoveProp,
     onPointerUp: onPointerUpProp,
+    onKeyDown: onKeyDownProp,
     className,
     ref,
     ...areaProps
@@ -758,6 +791,7 @@ function ColorPickerArea(props: DivProps) {
     onPointerDown: onPointerDownProp,
     onPointerMove: onPointerMoveProp,
     onPointerUp: onPointerUpProp,
+    onKeyDown: onKeyDownProp,
   });
 
   const context = useColorPickerContext(AREA_NAME);
@@ -826,6 +860,58 @@ function ColorPickerArea(props: DivProps) {
     [propsRef],
   );
 
+  const nudge = React.useCallback(
+    (deltaS: number, deltaV: number) => {
+      const clamp = (n: number) => Math.max(0, Math.min(100, n));
+      const newHsv: HSVColorValue = {
+        h: hsv?.h ?? 0,
+        s: clamp((hsv?.s ?? 0) + deltaS),
+        v: clamp((hsv?.v ?? 0) + deltaV),
+        a: hsv?.a ?? 1,
+      };
+      store.setHsv(newHsv);
+      store.setColor(hsvToRgb(newHsv));
+    },
+    [hsv, store],
+  );
+
+  const onKeyDown = React.useCallback(
+    (event: React.KeyboardEvent<AreaElement>) => {
+      if (context.disabled) return;
+      propsRef.current.onKeyDown?.(event);
+      if (event.defaultPrevented) return;
+
+      const step = event.shiftKey ? 10 : 1;
+      const dir = context.dir === "rtl" ? -1 : 1;
+
+      switch (event.key) {
+        case "ArrowLeft":
+          nudge(-step * dir, 0);
+          break;
+        case "ArrowRight":
+          nudge(step * dir, 0);
+          break;
+        case "ArrowUp":
+          nudge(0, step);
+          break;
+        case "ArrowDown":
+          nudge(0, -step);
+          break;
+        case "Home":
+          nudge(-100, 0);
+          break;
+        case "End":
+          nudge(100, 0);
+          break;
+        default:
+          return;
+      }
+
+      event.preventDefault();
+    },
+    [propsRef, context.dir, context.disabled, nudge],
+  );
+
   const hue = hsv?.h ?? 0;
   const backgroundHue = hsvToRgb({ h: hue, s: 100, v: 100, a: 1 });
 
@@ -834,9 +920,14 @@ function ColorPickerArea(props: DivProps) {
   return (
     <AreaPrimitive
       data-slot="color-picker-area"
+      role="slider"
+      aria-label="Saturation and brightness"
+      aria-valuetext={`Saturation ${hsv?.s ?? 0}%, brightness ${hsv?.v ?? 0}%`}
+      aria-disabled={context.disabled || undefined}
+      tabIndex={context.disabled ? -1 : 0}
       {...areaProps}
       className={cn(
-        "relative h-40 w-full cursor-crosshair touch-none rounded-sm border",
+        "focus-visible:ring-ring/50 ring-offset-background relative h-40 w-full cursor-crosshair touch-none rounded-sm border outline-none focus-visible:ring-[3px] focus-visible:ring-offset-2",
         context.disabled && "pointer-events-none opacity-50",
         className,
       )}
@@ -844,6 +935,7 @@ function ColorPickerArea(props: DivProps) {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
+      onKeyDown={onKeyDown}
     >
       <div className="absolute inset-0 overflow-hidden rounded-sm">
         <div
@@ -912,7 +1004,7 @@ function ColorPickerHueSlider(props: React.ComponentProps<typeof SliderPrimitive
       <SliderPrimitive.Track className="relative h-3 w-full grow overflow-hidden rounded-full bg-[linear-gradient(to_right,#ff0000_0%,#ffff00_16.66%,#00ff00_33.33%,#00ffff_50%,#0000ff_66.66%,#ff00ff_83.33%,#ff0000_100%)]">
         <SliderPrimitive.Range className="absolute h-full" />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="block size-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+      <SliderPrimitive.Thumb className="block size-4 rounded-full border border-primary/50 bg-background shadow ring-offset-background transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
     </SliderPrimitive.Root>
   );
 }
@@ -967,7 +1059,7 @@ function ColorPickerAlphaSlider(props: React.ComponentProps<typeof SliderPrimiti
         />
         <SliderPrimitive.Range className="absolute h-full" />
       </SliderPrimitive.Track>
-      <SliderPrimitive.Thumb className="block size-4 rounded-full border border-primary/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+      <SliderPrimitive.Thumb className="block size-4 rounded-full border border-primary/50 bg-background shadow ring-offset-background transition-colors outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50" />
     </SliderPrimitive.Root>
   );
 }
@@ -1062,6 +1154,7 @@ function ColorPickerEyeDropper(props: React.ComponentProps<typeof Button>) {
   return (
     <Button
       data-slot="color-picker-eye-dropper"
+      aria-label="Pick color from screen"
       {...buttonProps}
       variant="outline"
       size={size}
@@ -1104,6 +1197,7 @@ function ColorPickerFormatSelect(props: ColorPickerFormatSelectProps) {
     >
       <SelectTrigger
         data-slot="color-picker-format-select-trigger"
+        aria-label="Color format"
         size={size ?? "sm"}
         className={cn(className)}
       >

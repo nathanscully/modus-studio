@@ -29,6 +29,11 @@ export interface ThemeMeta {
   name: string;
   description: string;
   mode: ThemeMode;
+  /** Attribution + provenance, carried through from the theme file's meta. */
+  author?: string;
+  homepage?: string;
+  license?: string;
+  tags?: readonly string[];
 }
 
 export interface ThemeDoc {

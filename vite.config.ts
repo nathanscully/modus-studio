@@ -34,7 +34,12 @@ export default defineConfig({
   server: { port: 3000 },
 
   lint: {
-    ignorePatterns: ["dist/**", "src/routeTree.gen.ts"],
+    ignorePatterns: [
+      "dist/**",
+      "src/routeTree.gen.ts",
+      "screenshots/**",
+      "src/components/ui/color-picker-internal/**",
+    ],
     plugins: ["react"],
     options: {
       typeAware: true,
