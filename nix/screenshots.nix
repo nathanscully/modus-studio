@@ -2,45 +2,17 @@
 # a .el with the dependency-free node exporter, then render each in a cairo
 # X11 Emacs under Xvfb via x-export-frames (Linux only; on the Mac this builds
 # on the linux-builder and the PNGs land in ./result).
-{ pkgs, src }:
+{
+  pkgs,
+  src,
+  themeCache,
+}:
 
 let
   # typescript-ts-mode (built into Emacs) needs the treesit grammar .so;
   # the wrapper's site-start wiring is skipped under -Q, so the driver reads
   # this path into treesit-extra-load-path explicitly.
   tsGrammars = pkgs.emacs.pkgs.treesit-grammars.with-all-grammars;
-
-  # The upstream .el files every pointer theme needs, fetched by the hashes in
-  # themes/lock.json and laid out the way scripts/resolve-themes.ts caches them
-  # (themes/.cache/<repo>/<rev>/<path>), so the resolver can run --offline.
-  lock = builtins.fromJSON (builtins.readFile (src + "/themes/lock.json"));
-  # Many pointers share a file (every Ef theme lists ef-themes.el), so
-  # deduplicate before fetching.
-  cacheFiles = pkgs.lib.unique (
-    pkgs.lib.concatLists (
-      pkgs.lib.mapAttrsToList (
-        _id: entry:
-        pkgs.lib.mapAttrsToList (path: hash: {
-          inherit path hash;
-          inherit (entry) repo rev;
-        }) entry.files
-      ) lock
-    )
-  );
-  themeCache = pkgs.runCommand "modus-studio-theme-cache" { } (
-    pkgs.lib.concatMapStringsSep "\n" (
-      f:
-      let
-        fetched = pkgs.fetchurl {
-          url = "https://raw.githubusercontent.com/${f.repo}/${f.rev}/${f.path}";
-          inherit (f) hash;
-        };
-      in
-      ''
-        install -D -m644 ${fetched} "$out/${f.repo}/${f.rev}/${f.path}"
-      ''
-    ) cacheFiles
-  );
 in
 pkgs.stdenvNoCC.mkDerivation {
   name = "theme-screenshots";

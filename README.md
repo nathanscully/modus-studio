@@ -59,24 +59,32 @@ color/mapping model, and the API differences across Modus versions:
 
 ## Development
 
-Requires [Nix](https://nixos.org) with flakes enabled (provides Node + pnpm),
-and optionally [direnv](https://direnv.net) (`direnv allow` to auto-enter the
-shell).
+Requires [Nix](https://nixos.org) with flakes enabled. `nix develop` (or
+`direnv allow`) drops into a [devshell](https://github.com/numtide/devshell)
+with Node, pnpm and one command per workflow; `menu` lists them, and each is
+also reachable as `nix develop -c <name>`.
 
 ```bash
 nix develop          # or: direnv allow
 pnpm install
-pnpm dev             # resolves the theme pointers, then Vite with HMR at http://localhost:3000
+dev                  # resolves the theme pointers, then Vite with HMR at http://localhost:3000
 ```
 
-| Command              | What it does                                       |
-| -------------------- | -------------------------------------------------- |
-| `pnpm run resolve`   | Fetch pinned upstream files, write themes/resolved |
-| `pnpm dev`           | Vite dev server with HMR                           |
-| `pnpm run build`     | Production build to `dist/` (`vp build`)           |
-| `pnpm run preview`   | Serve the production build (`vp preview`)          |
-| `pnpm exec vp check` | Format + lint + typecheck (Oxfmt/Oxlint/tsgolint)  |
-| `pnpm exec vp test`  | Run the Vitest suite (jsdom)                       |
+| Command       | What it does                                                                    |
+| ------------- | ------------------------------------------------------------------------------- |
+| `dev`         | Resolve the pointers, then Vite with HMR                                        |
+| `resolve`     | Fetch the pinned upstream files, write themes/resolved (`--update-lock` to pin) |
+| `pin`         | Write a pointer for `<owner/repo> <theme-symbol>`                               |
+| `check`       | Resolve, lint, typecheck, test and build: what CI runs                          |
+| `lint`        | Format, lint and typecheck (`--fix` to write)                                   |
+| `vitest`      | Run the test suite                                                              |
+| `build`       | Production build to `dist/`                                                     |
+| `check-el`    | Export every theme and load it in Emacs 31, and in Emacs 30 with modus-themes 5 |
+| `screenshots` | Real-Emacs PNG per theme (Linux; the Mac uses the linux-builder)                |
+| `fmt`         | Format the nix files                                                            |
+
+`nix flake check` runs the export check against store Emacs builds with
+nothing from the host; CI runs `check` and then `nix flake check`.
 
 ## License
 

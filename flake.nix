@@ -3,54 +3,43 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
+    # Emacs 30 for the export check: nixpkgs-unstable only ships Emacs 31.
+    nixpkgs-emacs30.url = "github:NixOS/nixpkgs/nixos-25.05";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-      ...
-    }:
-    # x86_64-darwin is dropped: nixpkgs 26.11 no longer supports it.
-    flake-utils.lib.eachSystem [ "aarch64-darwin" "aarch64-linux" "x86_64-linux" ] (
-      system:
-      let
-        pkgs = nixpkgs.legacyPackages.${system};
-        lib = nixpkgs.lib;
-        node = pkgs.nodejs_24;
-        pnpm = pkgs.pnpm.override { withNode = false; };
-      in
-      {
-        devShells.default = pkgs.mkShell {
-          packages = [
-            node
-            pnpm
-            pkgs.git
-          ];
+    inputs@{ flake-parts, devshell, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [ devshell.flakeModule ];
 
-          env.VITE_GIT_HOOKS = "1";
+      # x86_64-darwin is dropped: nixpkgs 26.11 no longer supports it.
+      systems = [
+        "aarch64-darwin"
+        "aarch64-linux"
+        "x86_64-linux"
+      ];
 
-          shellHook = ''
-            export VP_ENV_MODE=off          # Nix owns the runtime; vp must not manage it
-            echo "modus-studio devshell — node $(node --version), pnpm $(pnpm --version)"
-            echo "  pnpm install        install deps"
-            echo "  pnpm dev            Vite dev server (HMR)"
-            echo "  pnpm exec vp check  format + lint + typecheck"
-            echo "  pnpm exec vp test   run tests"
-            echo "  pnpm run build      production build to dist/"
-            echo "  pnpm run preview    serve the production build"
-            echo "  nix build .#packages.aarch64-linux.themeScreenshots"
-            echo "                      real-Emacs PNG per theme (linux-builder)"
-          '';
-        };
-      }
-      // lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-        # Real-Emacs screenshots of every theme (x-export-frames under Xvfb).
-        # Linux-only; from the Mac it builds via the linux-builder.
-        packages.themeScreenshots = import ./nix/screenshots.nix {
-          inherit pkgs;
+      perSystem =
+        {
+          pkgs,
+          lib,
+          system,
+          ...
+        }:
+        let
+          node = pkgs.nodejs_24;
+          pnpm = pkgs.pnpm.override { withNode = false; };
+          emacs31 = pkgs.emacs;
+          emacs30 = inputs.nixpkgs-emacs30.legacyPackages.${system}.emacs30-nox;
+          scripts = import ./nix/scripts.nix { inherit pkgs emacs31 emacs30; };
+
+          # What the sandboxed builds see: the theme data, the dependency-free
+          # engine and the two node scripts, nothing from node_modules.
           src = lib.fileset.toSource {
             root = ./.;
             fileset = lib.fileset.unions [
@@ -64,7 +53,48 @@
               ./flake.nix
             ];
           };
+          themeCache = import ./nix/theme-cache.nix { inherit pkgs src; };
+        in
+        {
+          # `nix develop` drops into the shell; every command is also reachable
+          # as `nix develop -c <name>`.
+          devshells = import ./nix/devshell.nix {
+            inherit
+              pkgs
+              node
+              pnpm
+              scripts
+              ;
+          };
+
+          # `nix flake check`: resolve every pointer from the hash-pinned cache,
+          # export every theme, and load each one in a store Emacs 31 and in
+          # Emacs 30 with the pinned modus-themes 5. Nothing from the host.
+          checks.themeExports = pkgs.stdenvNoCC.mkDerivation {
+            name = "modus-studio-theme-exports";
+            inherit src;
+            nativeBuildInputs = [ node ];
+            buildPhase = ''
+              runHook preBuild
+              export HOME=$TMPDIR
+              mkdir -p themes/.cache
+              cp -r ${themeCache}/. themes/.cache/
+              chmod -R u+w themes
+              node scripts/resolve-themes.ts --offline
+              ${scripts.checkEl31}
+              ${scripts.checkEl30}
+              runHook postBuild
+            '';
+            installPhase = "touch $out";
+          };
+
+          formatter = pkgs.nixfmt;
+
+          # Real-Emacs screenshots of every theme (x-export-frames under Xvfb).
+          # Linux-only; from the Mac it builds via the linux-builder.
+          packages = lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+            themeScreenshots = import ./nix/screenshots.nix { inherit pkgs src themeCache; };
+          };
         };
-      }
-    );
+    };
 }
