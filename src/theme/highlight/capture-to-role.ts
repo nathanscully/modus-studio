@@ -27,6 +27,8 @@ const CAPTURE_TABLE: ReadonlyArray<readonly [string, RoleKey]> = [
   ["string", "string"],
   ["string.documentation", "docstring"],
   ["string.escape", "rx-backslash"],
+  ["escape", "rx-backslash"],
+  ["embedded", "variable-use"],
   ["string.regexp", "string"],
   ["string.special", "string"],
 
