@@ -6,13 +6,18 @@ upstream `.el` at a pinned commit. To add yours:
 
 1. Publish the theme in a public GitHub repo. It must define its palette as
    data: a quoted list, `append`, and `modus-themes-generate-palette`, then call
-   `modus-themes-theme`. Every theme built the usual way already does.
-2. From a clone of this repo, run
-   `pnpm run pin <owner/repo> <theme-symbol>` and then
-   `pnpm run resolve -- --update-lock`. The first writes
-   `themes/community/<theme>.json`, the second pins file hashes in
-   `themes/lock.json` and writes the resolved theme.
-3. Run `pnpm exec vp test`, then open a PR with the pointer and the lock change.
+   `modus-themes-theme`. Every theme built the usual way already does, and so
+   does every file the editor's Download button writes.
+2. Add the pointer. In the editor, open the menu and choose "Add your theme to
+   the gallery": paste the repo, pick the commit, and the dialog opens GitHub's
+   new-file page with `themes/community/<id>.json` filled in. From a clone of
+   this repo, the same thing is `pnpm run pin <owner/repo> <theme-symbol>`
+   followed by `pnpm run resolve -- --update-lock`, which also pins the file
+   hashes in `themes/lock.json`.
+3. Open the PR. CI resolves the pointer and validates the theme. A pointer
+   added from the browser has no `themes/lock.json` entry yet, so CI reports
+   "not pinned"; a maintainer runs `pnpm run resolve -- --update-lock` on the
+   branch and pushes the lock before merging.
 
 A pointer looks like this:
 

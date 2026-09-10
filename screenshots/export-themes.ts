@@ -14,7 +14,7 @@ import { join } from "node:path";
 
 import { exportThemeFile } from "../src/theme/export-el.ts";
 import { ELISP_SAMPLE, TS_SAMPLE } from "../src/theme/highlight/languages.ts";
-import { toThemeDoc } from "../src/theme/theme-file.ts";
+import { toSpec } from "../src/theme/theme-file.ts";
 import { loadThemeFiles } from "../src/theme/theme-files-node.ts";
 
 const [themesDir, outDir] = process.argv.slice(2);
@@ -27,7 +27,7 @@ const loaded = loadThemeFiles(themesDir);
 
 mkdirSync(outDir, { recursive: true });
 for (const { file } of loaded.values()) {
-  writeFileSync(join(outDir, `${file.id}-theme.el`), exportThemeFile(toThemeDoc(file)));
+  writeFileSync(join(outDir, `${file.id}-theme.el`), exportThemeFile(toSpec(file)));
 }
 writeFileSync(join(outDir, "sample.el"), ELISP_SAMPLE);
 writeFileSync(join(outDir, "sample.ts"), TS_SAMPLE);

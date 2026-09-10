@@ -19,11 +19,10 @@ import {
   toPreset,
   toThemeDoc,
   validateThemeFile,
-  type Collection,
   type ResolvedThemeFile,
   type ThemeFile,
 } from "./theme-file.ts";
-import type { Preset, ThemeDoc } from "./types.ts";
+import type { Collection, Preset, ThemeDoc } from "./types.ts";
 
 const inRepo = import.meta.glob<ThemeFile>("../../themes/{modus,ef,classic,community}/*.json", {
   eager: true,
@@ -116,7 +115,7 @@ type CollectionBucket = Record<Collection, Preset[]>;
 function bucketed(): CollectionBucket {
   const buckets: CollectionBucket = { modus: [], ef: [], classic: [], community: [] };
   for (const { collection, file } of LOADED.values()) {
-    buckets[collection].push(toPreset(file));
+    buckets[collection].push(toPreset(file, collection));
   }
   return buckets;
 }

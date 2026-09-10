@@ -1,19 +1,21 @@
-// The main generator page: toolbar on top, editor (palette + mappings) on the
-// left, live preview + export on the right. Clicking an element in the preview
-// "inspects" the color or role controlling it, switching to the matching editor
-// tab (Palette for layer-1 colors, Mappings for layer-2 roles) and revealing the
-// field.
+// The main generator page: toolbar on top, editor on the left, live preview on
+// the right. The editor opens on the Essentials panel (the colors an author
+// chooses plus this session's changes); an Advanced toggle reveals the full
+// palette and mapping editors. Clicking an element in the preview "inspects"
+// the color or role behind it: in Essentials that opens one row for it, in
+// Advanced it switches to the matching tab and reveals the field.
 
 import { useState } from "react";
 
-import { ExportPanel } from "~/components/ExportPanel.tsx";
 import { Toolbar } from "~/components/Toolbar.tsx";
+import { EssentialsPanel, isEssentialKey } from "~/components/editor/EssentialsPanel.tsx";
 import { MappingEditor } from "~/components/editor/MappingEditor.tsx";
 import { PaletteEditor } from "~/components/editor/PaletteEditor.tsx";
+import { SourcePanel } from "~/components/editor/SourcePanel.tsx";
 import { CodeBufferPreview } from "~/components/preview/CodeBufferPreview.tsx";
 import type { InspectTarget } from "~/components/preview/inspect.ts";
+import { Button } from "~/components/ui/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs.tsx";
-import { cn } from "~/lib/utils.ts";
 import { ThemeStoreProvider } from "~/state/theme-store.tsx";
 import type { ColorKey, RoleKey } from "~/theme/palette-keys.ts";
 
@@ -37,16 +39,28 @@ export function Generator({ initialPresetId, initialParam }: GeneratorProps) {
   );
 }
 
+type EditorTab = "essentials" | "palette" | "mappings";
+
 function GeneratorInner() {
+  const [advanced, setAdvanced] = useState(false);
+  const [editorTab, setEditorTab] = useState<EditorTab>("essentials");
   const [inspectedRole, setInspectedRole] = useState<RoleKey | null>(null);
   const [inspectedColor, setInspectedColor] = useState<ColorKey | null>(null);
-  const [editorTab, setEditorTab] = useState("mappings");
-  const [exportOpen, setExportOpen] = useState(false);
+  const [inspectedKey, setInspectedKey] = useState<string | null>(null);
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
 
   function inspect(target: InspectTarget) {
+    if (editorTab === "essentials") {
+      if (!isEssentialKey(target.key)) {
+        setOpenKeys((prev) => (prev.includes(target.key) ? prev : [...prev, target.key]));
+      }
+      // Re-set even if unchanged so the same key can be re-inspected to re-scroll.
+      setInspectedKey(null);
+      requestAnimationFrame(() => setInspectedKey(target.key));
+      return;
+    }
     if (target.kind === "role") {
       setEditorTab("mappings");
-      // Re-set even if unchanged so the same key can be re-inspected to re-scroll.
       setInspectedRole(null);
       requestAnimationFrame(() => setInspectedRole(target.key));
     } else {
@@ -56,40 +70,69 @@ function GeneratorInner() {
     }
   }
 
+  function toggleAdvanced() {
+    const next = !advanced;
+    setAdvanced(next);
+    setEditorTab(next ? "mappings" : "essentials");
+  }
+
   return (
     <div className="bg-background text-foreground flex min-h-screen flex-col md:h-screen">
       <Toolbar />
       <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-[minmax(380px,460px)_1fr]">
-        {/* Editor */}
         <Tabs
           value={editorTab}
-          onValueChange={setEditorTab}
+          onValueChange={(v) => setEditorTab(v as EditorTab)}
           className="order-2 flex min-h-0 flex-col border-t md:order-1 md:border-t-0 md:border-r"
         >
-          <TabsList className="m-2">
-            <TabsTrigger value="palette">Palette</TabsTrigger>
-            <TabsTrigger value="mappings">Mappings</TabsTrigger>
-          </TabsList>
-          <TabsContent value="palette" className="min-h-0 flex-1 overflow-auto">
-            <PaletteEditor inspectedColor={inspectedColor} />
+          <div className="flex items-center gap-2 px-2 pt-2">
+            <TabsList>
+              <TabsTrigger value="essentials">Essentials</TabsTrigger>
+              {advanced ? (
+                <>
+                  <TabsTrigger value="palette">Palette</TabsTrigger>
+                  <TabsTrigger value="mappings">Mappings</TabsTrigger>
+                </>
+              ) : null}
+            </TabsList>
+            <Button
+              size="xs"
+              variant="ghost"
+              aria-pressed={advanced}
+              onClick={toggleAdvanced}
+              className="ml-auto"
+              title={
+                advanced
+                  ? "Hide the full palette and mapping editors"
+                  : "Show every named color and semantic mapping"
+              }
+            >
+              Advanced
+            </Button>
+          </div>
+          <TabsContent value="essentials" className="min-h-0 flex-1 overflow-auto">
+            <EssentialsPanel
+              inspectedKey={inspectedKey}
+              openKeys={openKeys}
+              onCloseKey={(key) => setOpenKeys((prev) => prev.filter((k) => k !== key))}
+            />
           </TabsContent>
-          <TabsContent value="mappings" className="min-h-0 flex-1 overflow-auto">
-            <MappingEditor inspectedRole={inspectedRole} />
-          </TabsContent>
+          {advanced ? (
+            <>
+              <TabsContent value="palette" className="min-h-0 flex-1 overflow-auto">
+                <PaletteEditor inspectedColor={inspectedColor} />
+              </TabsContent>
+              <TabsContent value="mappings" className="min-h-0 flex-1 overflow-auto">
+                <MappingEditor inspectedRole={inspectedRole} />
+              </TabsContent>
+            </>
+          ) : null}
+          <SourcePanel />
         </Tabs>
 
-        {/* Preview + export */}
-        <div
-          className={cn(
-            "order-1 grid h-[80vh] min-h-0 md:order-2 md:h-auto",
-            exportOpen ? "grid-rows-[1fr_minmax(0,45%)]" : "grid-rows-[1fr_auto]",
-          )}
-        >
-          <div className="min-h-0 overflow-hidden p-3">
+        <div className="order-1 min-h-0 md:order-2 h-[80vh] md:h-auto">
+          <div className="h-full min-h-0 overflow-hidden p-3">
             <CodeBufferPreview onInspect={inspect} />
-          </div>
-          <div className="min-h-0 border-t">
-            <ExportPanel open={exportOpen} onOpenChange={setExportOpen} />
           </div>
         </div>
       </div>

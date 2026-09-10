@@ -46,9 +46,16 @@ export function resolveValue(
   return null;
 }
 
-/** Resolve one role to a hex string, or `null` if unspecified/unresolved. */
+/**
+ * Resolve one role to a hex string, or `null` if unspecified/unresolved. A role
+ * the theme defines as a named color instead of a mapping (the ef-themes do
+ * this with `cursor`) resolves to that color, as the engine's lookup by symbol
+ * does not care which layer an entry sits in.
+ */
 export function resolveRole(doc: ThemeDoc, role: RoleKey): string | null {
-  return resolveValue(doc, doc.mappings[role]);
+  const mapped = doc.mappings[role];
+  if (mapped != null) return resolveValue(doc, mapped);
+  return (doc.palette as Record<string, string | undefined>)[role] ?? null;
 }
 
 /** Resolve every role to a hex (omitting roles that resolve to null). */

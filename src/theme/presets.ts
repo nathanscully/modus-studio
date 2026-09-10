@@ -9,7 +9,7 @@
 // are stable — `?t=` diffs in shared links reference them.
 
 import { ALL_PRESETS, PRESET_GROUPS } from "./loader.ts";
-import type { Preset, ThemeDoc } from "./types.ts";
+import type { Preset, ThemeDoc, ThemeSpec } from "./types.ts";
 
 export { PRESET_GROUPS };
 
@@ -28,4 +28,17 @@ export function cloneDoc(doc: ThemeDoc): ThemeDoc {
     palette: { ...doc.palette },
     mappings: { ...doc.mappings },
   };
+}
+
+/** Deep clone a ThemeSpec so edits never mutate the bundled preset. */
+export function cloneSpec(spec: ThemeSpec): ThemeSpec {
+  const out: ThemeSpec = {
+    kind: spec.kind,
+    meta: { ...spec.meta },
+    colors: { ...spec.colors },
+    mappings: { ...spec.mappings },
+    core: spec.core,
+  };
+  if (spec.preference) out.preference = spec.preference;
+  return out;
 }

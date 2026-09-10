@@ -20,6 +20,10 @@ export interface GalleryEntry {
   collection: string;
   mode: ThemeMode;
   author?: string;
+  license?: string;
+  /** The upstream repo (for pointer themes) or the theme's homepage. */
+  repoUrl?: string;
+  install?: string;
   description: string;
   tags: readonly string[];
   /** bg-main, fg-main, then the six hues — the card swatch strip. */
@@ -45,6 +49,9 @@ function toEntry(collection: string, preset: Preset): GalleryEntry {
     collection,
     mode: doc.meta.mode,
     author: doc.meta.author,
+    license: doc.meta.license,
+    repoUrl: preset.source ? `https://github.com/${preset.source.repo}` : doc.meta.homepage,
+    install: preset.source?.install,
     description: doc.meta.description,
     tags: doc.meta.tags ?? [],
     swatches: [bgMain, fgMain, ...HUES.map((h) => p[h] ?? fgMain)],

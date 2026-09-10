@@ -59,3 +59,15 @@ describe("resolveAll", () => {
     expect(Object.keys(all)).not.toContain("bg-main");
   });
 });
+
+describe("resolveRole", () => {
+  it("falls back to a same-named palette color when the role is not mapped", () => {
+    const doc: ThemeDoc = {
+      meta: { name: "t", description: "", mode: "light" },
+      palette: { cursor: "#cf0090", "bg-main": "#ffffff" },
+      mappings: {},
+    };
+    expect(resolveRole(doc, "cursor")).toBe("#cf0090");
+    expect(resolveRole(doc, "keyword")).toBeNull();
+  });
+});

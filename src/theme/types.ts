@@ -42,38 +42,49 @@ export interface ThemeDoc {
   mappings: Mapping;
 }
 
-/** A bundled starting-point theme (modus-operandi / modus-vivendi for v1). */
+export type ThemePreference = "cool" | "warm";
+
+/**
+ * The author's model of a theme, which is what the editor edits and the
+ * exporter writes. A "partial" spec holds the base colors and mapping
+ * overrides an author writes by hand; `generatePalette` derives the rest from
+ * the named core at view time. A "full" spec (the Modus cores, themes whose
+ * palette is not generated) holds the whole palette and mapping layer as-is.
+ */
+export interface ThemeSpec {
+  kind: "full" | "partial";
+  meta: ThemeMeta;
+  /** Named colors: the whole palette for "full", the author's base colors for "partial". */
+  colors: Palette;
+  /** Semantic mappings: the whole layer for "full", the author's overrides for "partial". */
+  mappings: Mapping;
+  /** The engine core palette symbol a partial fills from, e.g. modus-themes-vivendi-palette. */
+  core: string;
+  preference?: ThemePreference;
+}
+
+// The four built-in collections, in gallery/picker display order. Community is
+// last; extra directories under themes/ default to "community".
+export type Collection = "modus" | "ef" | "classic" | "community";
+
+/** Where a resolved theme came from: the pinned upstream files it was read from. */
+export interface ThemeProvenance {
+  repo: string;
+  rev: string;
+  files: readonly string[];
+  theme: string;
+  url: string;
+  api: "modus-5" | "modus-4";
+  customFaces: number;
+  install?: string;
+}
+
+/** A theme from the catalogue: its author-style spec plus the expanded doc the preview reads. */
 export interface Preset {
   id: string;
   label: string;
+  collection: Collection;
+  spec: ThemeSpec;
   doc: ThemeDoc;
-}
-
-/**
- * A classic color scheme (Solarized, Nord, …) expressed the way upstream defines
- * it: a small set of BASE-COLORS, not a full Modus palette. Feeding `base`
- * through `generatePalette` derives the complete palette + default mappings (see
- * generate-palette.ts), so the app can expand "a handful of brand colors" into a
- * valid Modus theme live. `mode` picks the core palette to fill the remainder.
- *
- * `base` must include at least `bg-main` and `fg-main`; providing the six hues
- * (red/green/yellow/blue/magenta/cyan) gives a palette with no trace of core
- * Modus colors (per the manual's Solarized walkthrough).
- */
-export interface BaseScheme {
-  id: string;
-  label: string;
-  description: string;
-  mode: ThemeMode;
-  /** Optional cool/warm bias; if absent, inferred from bg-main. */
-  preference?: "cool" | "warm";
-  base: Palette;
-  /**
-   * Optional semantic-role overrides applied as generatePalette's MAPPINGS arg.
-   * Use this to make a port match its source's own face choices rather than
-   * inheriting Modus's defaults — e.g. Solarized maps keyword→green, fnname→blue,
-   * which Modus would otherwise assign differently. Entries here win over derived
-   * and core mappings.
-   */
-  mappings?: Mapping;
+  source?: ThemeProvenance;
 }

@@ -4,6 +4,12 @@
 
 export const REPO_URL = "https://github.com/nathanscully/modus-studio";
 
-export function communityPrUrl(id: string): string {
-  return `${REPO_URL}/new/main?filename=themes/community/${id}.json`;
+/**
+ * GitHub's new-file page for a community pointer, with the file contents
+ * prefilled. A pointer is a few hundred bytes, so it fits the `value` param.
+ */
+export function communityPrUrl(id: string, contents?: string): string {
+  const params = new URLSearchParams({ filename: `themes/community/${id}.json` });
+  if (contents) params.set("value", contents);
+  return `${REPO_URL}/new/main?${params}`;
 }

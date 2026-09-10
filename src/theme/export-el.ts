@@ -1,14 +1,17 @@
-// Emit Emacs Lisp from a ThemeDoc:
-//   - exportThemeFile: a self-contained derivative theme file built on modus-themes,
-//     loadable under both modus-themes APIs (see exportThemeFile).
+// Emit Emacs Lisp from a ThemeSpec:
+//   - exportThemeFile: a derivative theme file built on modus-themes. A partial
+//     spec is written the way theme authors write one (base colors, mapping
+//     overrides, one `modus-themes-generate-palette` call), which is also what
+//     the resolver reads back. A full spec is written with its whole palette,
+//     loadable under both modus-themes APIs (see exportFullThemeFile).
 //   - exportOverrides: a (setq <base>-palette-overrides '(...)) snippet containing
 //     only the entries that differ from the chosen base preset.
 
 import { REPO_URL } from "../lib/site.ts";
 import { COLOR_GROUPS, ROLE_GROUPS, type ColorKey } from "./palette-keys.ts";
 import { isHex, UNSPECIFIED } from "./resolve.ts";
-import { getModusCore } from "./theme-file.ts";
-import type { MappingValue, Palette, ThemeDoc } from "./types.ts";
+import { expandSpec, getModusCore } from "./theme-file.ts";
+import type { MappingValue, Palette, ThemeDoc, ThemeMeta, ThemeSpec } from "./types.ts";
 
 /**
  * The modus-themes face specs reference the full set of named colors directly
@@ -130,18 +133,143 @@ function elispString(s: string): string {
   return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
 }
 
-/** The `;; Key: value` credit lines for the file header, from the doc's provenance. */
-function creditHeader(doc: ThemeDoc): string {
-  const { author, homepage, license } = doc.meta;
+/** The `;; Key: value` credit lines for the file header, from the theme's provenance. */
+function creditHeader(meta: ThemeMeta, packageRequires?: string): string {
+  const { author, homepage, license } = meta;
   const lines: string[] = [];
   if (author) lines.push(`;; Author: ${author}`);
   if (homepage) lines.push(`;; URL: ${homepage}`);
   if (license) lines.push(`;; SPDX-License-Identifier: ${license}`);
+  if (packageRequires) lines.push(`;; Package-Requires: ${packageRequires}`);
   return lines.length > 0 ? `${lines.join("\n")}\n\n` : "";
 }
 
+/** The two user-facing defcustoms every exported theme declares. */
+function userDefcustoms(name: string): string {
+  return `  (defcustom ${name}-palette-user nil
+    "Like the \`${name}-palette' for user-defined entries.
+This is meant to extend the palette with custom named colors and/or
+semantic palette mappings.  Those may then be used in combination with
+palette overrides (also see \`modus-themes-common-palette-overrides' and
+\`${name}-palette-overrides')."
+    :group 'modus-themes
+    :type '(repeat (list symbol (choice symbol string))))
+
+  (defcustom ${name}-palette-overrides nil
+    "Overrides for \`${name}-palette'.
+
+Mirror the elements of the aforementioned palette, overriding
+their value.  Theme-specific overrides take precedence over the
+shared \`modus-themes-common-palette-overrides'."
+    :group 'modus-themes
+    :type '(repeat (list symbol (choice symbol string))))`;
+}
+
+/** The modus-themes 5 theme declaration: a function over quoted symbols. */
+function themeCall5(name: string, desc: string, mode: string, indent: string): string {
+  return `${indent}(modus-themes-theme
+${indent} '${name}
+${indent} '${name}
+${indent} ${desc}
+${indent} '${mode}
+${indent} '${name}-palette
+${indent} '${name}-palette-user
+${indent} '${name}-palette-overrides)`;
+}
+
+/** Emit a theme file for a spec, in the author's shape when it is partial. */
+export function exportThemeFile(spec: ThemeSpec): string {
+  return spec.kind === "partial"
+    ? exportPartialThemeFile(spec)
+    : exportFullThemeFile(expandSpec(spec));
+}
+
+function alistLines(entries: readonly [string, string][], indent: string): string {
+  return entries.map(([k, v]) => `${indent}(${k.padEnd(26)} ${v})`).join("\n");
+}
+
 /**
- * Emit a theme file that loads under both modus-themes APIs:
+ * Emit an author-style theme file: the base colors, the mapping overrides and
+ * one `modus-themes-generate-palette` call that derives the rest from the
+ * named core, exactly as the editor previews it. `generate-palette` only
+ * accepts strings in BASE-COLORS and symbols in MAPPINGS, so a mapping the
+ * author set to a literal hex is written as a named color of that role (the
+ * engine resolves a role by symbol in either layer). The function exists in
+ * modus-themes 5 only: bundled with Emacs 31, and on GNU ELPA for Emacs 30.
+ */
+export function exportPartialThemeFile(spec: ThemeSpec): string {
+  const { name, description, mode } = spec.meta;
+  const desc = elispString(description);
+
+  const colors: [string, string][] = Object.entries(spec.colors)
+    .filter((e): e is [string, string] => e[1] != null)
+    .map(([k, v]) => [k, `"${v}"`]);
+  const mappings: [string, string][] = [];
+  for (const [k, v] of Object.entries(spec.mappings)) {
+    if (v == null) continue;
+    if (isHex(v)) colors.push([k, `"${v}"`]);
+    else mappings.push([k, v]);
+  }
+  const preference = spec.preference ? `'${spec.preference}` : "nil";
+  const mappingsArg = mappings.length > 0 ? `${name}-palette-mappings` : "nil";
+  const mappingsDef =
+    mappings.length > 0
+      ? `
+  (defconst ${name}-palette-mappings
+    '(
+${alistLines(mappings, "      ")}
+)
+    "Semantic mappings of the \`${name}' theme that replace the derived defaults.
+
+Entries have the form (MAPPING-NAME COLOR-NAME) with both as symbols.")
+`
+      : "";
+
+  return `;;; ${name}-theme.el --- ${description} -*- lexical-binding:t -*-
+
+${creditHeader(spec.meta, '((emacs "28.1") (modus-themes "5.0.0"))')};; Made with modus-studio (${REPO_URL}), built on top of the
+;; modus-themes by Protesilaos Stavrou. Requires modus-themes 5 or newer:
+;; the copy bundled with Emacs >= 31, or the one on GNU ELPA.
+;;
+;; The theme is its base colors plus a few semantic mappings; the rest of the
+;; palette is derived by \`modus-themes-generate-palette' from
+;; \`${spec.core}'.
+
+;;; Code:
+
+(eval-and-compile
+  (unless (require 'modus-themes nil t)
+    (require-theme 'modus-themes))
+  (unless (fboundp 'modus-themes-generate-palette)
+    (error "The ${name} theme needs modus-themes 5 or newer; install it from GNU ELPA"))
+
+  (defconst ${name}-palette-base
+    '(
+${alistLines(colors, "      ")}
+)
+    "Base colors of the \`${name}' theme, in the form (COLOR-NAME HEX-VALUE).
+
+Every other named color and semantic mapping is derived from these by
+\`modus-themes-generate-palette'.")
+${mappingsDef}
+  (defconst ${name}-palette
+    (modus-themes-generate-palette
+     ${name}-palette-base
+     ${preference}
+     ${spec.core}
+     ${mappingsArg})
+    "The entire palette of the \`${name}' theme.")
+
+${userDefcustoms(name)}
+
+${themeCall5(name, desc, mode, "  ")})
+
+;;; ${name}-theme.el ends here
+`;
+}
+
+/**
+ * Emit a theme file with its whole palette that loads under both modus-themes APIs:
  *
  *   - modus-themes 4 (bundled with Emacs 30): `modus-themes-theme` is a 3-argument
  *     MACRO taking bare symbols — (NAME PALETTE OVERRIDES) — and the theme file
@@ -158,7 +286,7 @@ function creditHeader(doc: ThemeDoc): string {
  * `defconst` is evaluated before the macro expands (it reads the palette's value
  * at expansion time).
  */
-export function exportThemeFile(doc: ThemeDoc): string {
+export function exportFullThemeFile(doc: ThemeDoc): string {
   const { name, description, mode } = doc.meta;
   const desc = elispString(description);
 
@@ -169,7 +297,7 @@ export function exportThemeFile(doc: ThemeDoc): string {
 
   return `;;; ${name}-theme.el --- ${description} -*- lexical-binding:t -*-
 
-${creditHeader(doc)};; Made with modus-studio (${REPO_URL}), built on top of the
+${creditHeader(doc.meta)};; Made with modus-studio (${REPO_URL}), built on top of the
 ;; modus-themes by Protesilaos Stavrou. Requires the \`modus-themes' package:
 ;; the copy bundled with Emacs >= 30, or the one on GNU ELPA.
 
@@ -192,23 +320,7 @@ Semantic color mappings have the form (MAPPING-NAME COLOR-NAME)
 with both as symbols.  The latter is a named color that already
 exists in the palette and is associated with a HEX-VALUE.")
 
-  (defcustom ${name}-palette-user nil
-    "Like the \`${name}-palette' for user-defined entries.
-This is meant to extend the palette with custom named colors and/or
-semantic palette mappings.  Those may then be used in combination with
-palette overrides (also see \`modus-themes-common-palette-overrides' and
-\`${name}-palette-overrides')."
-    :group 'modus-themes
-    :type '(repeat (list symbol (choice symbol string))))
-
-  (defcustom ${name}-palette-overrides nil
-    "Overrides for \`${name}-palette'.
-
-Mirror the elements of the aforementioned palette, overriding
-their value.  Theme-specific overrides take precedence over the
-shared \`modus-themes-common-palette-overrides'."
-    :group 'modus-themes
-    :type '(repeat (list symbol (choice symbol string))))
+${userDefcustoms(name)}
 
   (if (macrop 'modus-themes-theme)
       ;; modus-themes 4 (Emacs 30): a macro over bare symbols; the theme file
@@ -225,14 +337,7 @@ shared \`modus-themes-common-palette-overrides'."
         (provide-theme '${name}))
     ;; modus-themes 5 (Emacs 31, GNU ELPA): a function over quoted symbols that
     ;; declares, registers and provides the theme on its own.
-    (modus-themes-theme
-     '${name}
-     '${name}
-     ${desc}
-     '${mode}
-     '${name}-palette
-     '${name}-palette-user
-     '${name}-palette-overrides)))
+${themeCall5(name, desc, mode, "    ")}))
 
 ;;; ${name}-theme.el ends here
 `;
@@ -240,26 +345,19 @@ shared \`modus-themes-common-palette-overrides'."
 
 /**
  * Emit a palette-overrides setq snippet containing only entries that differ
- * from `base`. Compares both layer-1 colors and layer-2 mappings.
+ * from `base`. Compares both the named colors and the semantic mappings of the
+ * two specs, so for a partial theme it lists exactly the author-style edits.
  */
-export function exportOverrides(doc: ThemeDoc, base: ThemeDoc, baseId: string): string {
+export function exportOverrides(spec: ThemeSpec, base: ThemeSpec, baseId: string): string {
   const lines: string[] = [];
+  const baseColors = base.colors as Record<string, string | undefined>;
+  const baseMappings = base.mappings as Record<string, MappingValue | undefined>;
 
-  for (const group of COLOR_GROUPS) {
-    for (const k of group.keys) {
-      const cur = doc.palette[k];
-      if (cur != null && cur !== base.palette[k]) {
-        lines.push(entry(k, `"${cur}"`));
-      }
-    }
+  for (const [k, cur] of Object.entries(spec.colors)) {
+    if (cur != null && cur !== baseColors[k]) lines.push(entry(k, `"${cur}"`));
   }
-  for (const group of ROLE_GROUPS) {
-    for (const k of group.keys) {
-      const cur = doc.mappings[k];
-      if (cur != null && cur !== base.mappings[k]) {
-        lines.push(entry(k, formatValue(cur)));
-      }
-    }
+  for (const [k, cur] of Object.entries(spec.mappings)) {
+    if (cur != null && cur !== baseMappings[k]) lines.push(entry(k, formatValue(cur)));
   }
 
   if (lines.length === 0) {

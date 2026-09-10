@@ -16,9 +16,20 @@
 import { generatePalette, isDark, isWarm } from "./generate-palette.ts";
 import { COLOR_KEYS, isColorKey, ROLE_KEYS, type ColorKey, type RoleKey } from "./palette-keys.ts";
 import { isHex, resolveRole, UNSPECIFIED } from "./resolve.ts";
-import type { Mapping, Palette, Preset, ThemeDoc, ThemeMeta, ThemeMode } from "./types.ts";
+import type {
+  Collection,
+  Mapping,
+  Palette,
+  Preset,
+  ThemeDoc,
+  ThemeMeta,
+  ThemeMode,
+  ThemeProvenance,
+  ThemeSpec,
+} from "./types.ts";
 
 export type ThemeFileKind = "full" | "partial" | "source";
+export type { Collection, ThemeProvenance };
 
 export interface ThemeFileMeta {
   name: string;
@@ -30,22 +41,6 @@ export interface ThemeFileMeta {
   license?: string;
   tags?: readonly string[];
 }
-
-/** Where a resolved theme came from: the pinned upstream files it was read from. */
-export interface ThemeProvenance {
-  repo: string;
-  rev: string;
-  files: readonly string[];
-  theme: string;
-  url: string;
-  api: "modus-5" | "modus-4";
-  customFaces: number;
-  install?: string;
-}
-
-// The four built-in collections, in gallery/picker display order. Community is
-// last; extra directories under themes/ default to "community".
-export type Collection = "modus" | "ef" | "classic" | "community";
 
 export interface FullThemeFile {
   kind: "full";
@@ -458,6 +453,50 @@ function metaOf(meta: ThemeFileMeta): ThemeMeta {
   };
 }
 
+/** The author-style spec of a resolved theme file. */
+export function toSpec(file: ResolvedThemeFile): ThemeSpec {
+  if (file.kind === "full") {
+    const bgMain = file.palette["bg-main"];
+    return {
+      kind: "full",
+      meta: metaOf(file.meta),
+      colors: { ...file.palette },
+      mappings: { ...file.mappings },
+      core:
+        file.coreSymbol ??
+        (bgMain ? defaultCoreSymbol(bgMain) : getModusCoreSymbol(file.meta.mode)),
+    };
+  }
+  const spec: ThemeSpec = {
+    kind: "partial",
+    meta: metaOf(file.meta),
+    colors: { ...file.base },
+    mappings: { ...file.mappings },
+    core: file.core ?? defaultCoreSymbol(file.base["bg-main"] ?? "#ffffff", file.preference),
+  };
+  if (file.preference) spec.preference = file.preference;
+  return spec;
+}
+
+/**
+ * Expand a spec into the doc the preview and exporter read. A full spec is its
+ * own doc; a partial one runs through generatePalette with its core, the same
+ * way Emacs builds the theme at load time.
+ */
+export function expandSpec(spec: ThemeSpec): ThemeDoc {
+  if (spec.kind === "full") {
+    return { meta: { ...spec.meta }, palette: { ...spec.colors }, mappings: { ...spec.mappings } };
+  }
+  const coreDoc = getCore(spec.core, spec.meta.mode);
+  const { palette, mappings } = generatePalette(spec.colors, {
+    corePalette: coreDoc.palette,
+    coreMappings: coreDoc.mappings,
+    mappings: spec.mappings,
+    preference: spec.preference,
+  });
+  return { meta: { ...spec.meta }, palette, mappings };
+}
+
 /** Turn a resolved theme file into an editor-ready ThemeDoc. */
 export function toThemeDoc(file: ResolvedThemeFile, core?: ThemeDoc): ThemeDoc {
   if (file.kind === "full") {
@@ -470,9 +509,18 @@ export function toThemeDoc(file: ResolvedThemeFile, core?: ThemeDoc): ThemeDoc {
   return expandPartial(file, core);
 }
 
-/** Turn a resolved theme file into a Preset (id + label + doc). */
-export function toPreset(file: ResolvedThemeFile, core?: ThemeDoc): Preset {
-  return { id: file.id, label: file.meta.label, doc: toThemeDoc(file, core) };
+/** Turn a resolved theme file into a Preset: its spec, the expanded doc and its provenance. */
+export function toPreset(file: ResolvedThemeFile, collection?: Collection): Preset {
+  const spec = toSpec(file);
+  const preset: Preset = {
+    id: file.id,
+    label: file.meta.label,
+    collection: collection ?? file.collection ?? "community",
+    spec,
+    doc: expandSpec(spec),
+  };
+  if (file.source) preset.source = file.source;
+  return preset;
 }
 
 // The core palettes are supplied by the loader (they are themselves full theme
@@ -505,10 +553,12 @@ export function getCore(symbol: string, mode: ThemeMode): ThemeDoc {
   return getModusCore(mode);
 }
 
+export function getModusCoreSymbol(mode: ThemeMode): string {
+  return mode === "dark" ? "modus-themes-vivendi-palette" : "modus-themes-operandi-palette";
+}
+
 export function getModusCore(mode: ThemeMode): ThemeDoc {
-  const doc = cores.get(
-    mode === "dark" ? "modus-themes-vivendi-palette" : "modus-themes-operandi-palette",
-  );
+  const doc = cores.get(getModusCoreSymbol(mode));
   if (!doc) {
     throw new Error(
       "modus core themes not registered; call registerCore before expanding partials",

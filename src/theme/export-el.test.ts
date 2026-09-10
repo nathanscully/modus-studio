@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { exportOverrides, exportThemeFile } from "./export-el.ts";
-import { modusOperandi } from "./loader.ts";
-import { cloneDoc } from "./presets.ts";
+import { cloneSpec, getPreset } from "./presets.ts";
+import type { ThemeSpec } from "./types.ts";
 
-describe("exportThemeFile", () => {
+const operandi = getPreset("modus-operandi")!.spec;
+const nord = getPreset("nord")!.spec;
+
+describe("exportThemeFile for a full spec", () => {
   const el = exportThemeFile({
-    ...modusOperandi,
+    ...operandi,
     meta: {
       name: "my-theme",
       description: 'My "custom" theme.',
@@ -54,9 +57,9 @@ describe("exportThemeFile", () => {
     expect(el).toContain("Made with modus-studio");
   });
 
-  it("omits credit lines the doc does not have", () => {
+  it("omits credit lines the spec does not have", () => {
     const bare = exportThemeFile({
-      ...modusOperandi,
+      ...operandi,
       meta: { name: "bare", description: "Bare.", mode: "light" },
     });
     expect(bare).not.toContain(";; Author:");
@@ -77,22 +80,60 @@ describe("exportThemeFile", () => {
   });
 });
 
+describe("exportThemeFile for a partial spec", () => {
+  const spec: ThemeSpec = {
+    ...cloneSpec(nord),
+    meta: { ...nord.meta, name: "my-nord", author: "Ada Lovelace" },
+  };
+  spec.mappings.keyword = "green";
+  spec.mappings.string = "#fedcba";
+  const el = exportThemeFile(spec);
+
+  it("writes the author's base colors and one generate-palette call", () => {
+    expect(el).toContain("(defconst my-nord-palette-base");
+    expect(el).toMatch(/\(bg-main\s+"#2e3440"\)/);
+    expect(el).toMatch(
+      /\(defconst my-nord-palette\s+\(modus-themes-generate-palette\s+my-nord-palette-base\s+'cool\s+modus-themes-vivendi-palette\s+my-nord-palette-mappings\)/,
+    );
+    expect(el).not.toContain(";;;; Semantic mappings");
+    expect(el).not.toContain("(macrop 'modus-themes-theme)");
+  });
+
+  it("keeps symbol mappings in MAPPINGS and moves a hex mapping into the base colors", () => {
+    expect(el).toMatch(/\(defconst my-nord-palette-mappings\s+'\(\s+\(keyword\s+green\)/);
+    const hexEntry = el.search(/\(string\s+"#fedcba"\)/);
+    expect(hexEntry).toBeGreaterThan(el.indexOf("(defconst my-nord-palette-base"));
+    expect(hexEntry).toBeLessThan(el.indexOf("(defconst my-nord-palette-mappings"));
+  });
+
+  it("declares the modus-themes 5 dependency and guards the function", () => {
+    expect(el).toContain(';; Package-Requires: ((emacs "28.1") (modus-themes "5.0.0"))');
+    expect(el).toContain("(unless (fboundp 'modus-themes-generate-palette)");
+    expect(el).toMatch(/\(modus-themes-theme\s+'my-nord\s+'my-nord\s+"[^"]*"\s+'dark/);
+  });
+
+  it("passes nil for MAPPINGS when the spec has none", () => {
+    const plain = exportThemeFile({ ...cloneSpec(nord), mappings: {} });
+    expect(plain).toMatch(/modus-themes-vivendi-palette\s+nil\)/);
+    expect(plain).not.toContain("palette-mappings");
+  });
+});
+
 describe("exportOverrides", () => {
   it("includes only entries that differ from the base", () => {
-    const edited = cloneDoc(modusOperandi);
-    edited.palette["magenta-cooler"] = "#123456";
+    const edited = cloneSpec(operandi);
+    edited.colors["magenta-cooler"] = "#123456";
     edited.mappings.keyword = "red";
 
-    const snippet = exportOverrides(edited, modusOperandi, "modus-operandi");
+    const snippet = exportOverrides(edited, operandi, "modus-operandi");
     expect(snippet).toContain("(setq modus-operandi-palette-overrides");
     expect(snippet).toMatch(/\(magenta-cooler\s+"#123456"\)/);
     expect(snippet).toMatch(/\(keyword\s+red\)/);
-    // An untouched entry must not appear.
     expect(snippet).not.toContain("bg-main");
   });
 
   it("reports no changes when identical to base", () => {
-    const snippet = exportOverrides(cloneDoc(modusOperandi), modusOperandi, "modus-operandi");
+    const snippet = exportOverrides(cloneSpec(operandi), operandi, "modus-operandi");
     expect(snippet).toContain("No changes");
   });
 });
