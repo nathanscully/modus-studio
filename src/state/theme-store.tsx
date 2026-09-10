@@ -27,7 +27,7 @@ import { decodeFromParam, encodeToParam } from "../theme/serialize.ts";
 import { expandSpec } from "../theme/theme-file.ts";
 import type { MappingValue, Preset, ThemeDoc, ThemeMeta, ThemeSpec } from "../theme/types.ts";
 
-export type LanguageId = "elisp" | "typescript";
+export type LanguageId = "elisp" | "typescript" | "python" | "rust";
 
 interface State {
   spec: ThemeSpec;
